@@ -163,14 +163,11 @@ def get_shares_outstanding():
     cache_key = "shares_outstanding.pkl"
     cached = load_from_cache(cache_key)
     if cached is not None:
-        print(f"📦 Using cached shares outstanding: {cached:,}")
         return cached
     try:
-        print("🔄 Fetching MARA shares outstanding from yfinance...")
         ticker = yf.Ticker("MARA")
         shares = ticker.info.get("sharesOutstanding", 351928000)
         save_to_cache(shares, cache_key)
-        print(f"✅ Cached shares outstanding: {shares:,}")
         return shares
     except Exception as e:
         print(f"Error fetching shares outstanding: {e}")
