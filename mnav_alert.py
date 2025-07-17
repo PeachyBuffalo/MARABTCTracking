@@ -7,6 +7,7 @@ import time
 import os
 import pickle
 from dotenv import load_dotenv
+import sys
 
 # Load environment variables from .env file if present
 load_dotenv()
@@ -130,8 +131,15 @@ def check_mnav():
 # Schedule it every hour
 schedule.every(1).hours.do(check_mnav)
 
+def run_check_once():
+    # Call your main check logic here (the code that runs each interval)
+    check_mnav()  # Replace with your actual function
+
 if __name__ == "__main__":
-    print("🚀 MNav monitor started. Waiting for next interval...")
-    while True:
-        schedule.run_pending()
-        time.sleep(60) 
+    if "--test-now" in sys.argv:
+        run_check_once()
+    else:
+        print("🚀 MNav monitor started. Waiting for next interval...")
+        while True:
+            schedule.run_pending()
+            time.sleep(60) 
