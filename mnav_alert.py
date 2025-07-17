@@ -41,21 +41,17 @@ def get_shares_outstanding():
     cache_key = "shares_outstanding.pkl"
     cached = load_from_cache(cache_key)
     if cached is not None:
-        print(f"📦 Using cached shares outstanding: {cached:,}")
         return cached
     try:
-        print("🔄 Fetching MARA shares outstanding from yfinance...")
         ticker = yf.Ticker("MARA")
         shares = ticker.info.get("sharesOutstanding", 351928000)
         save_to_cache(shares, cache_key)
-        print(f"✅ Cached shares outstanding: {shares:,}")
         return shares
     except Exception as e:
         print(f"Error fetching shares outstanding: {e}")
         return 351928000
 
 # Configuration
-BTC_PER_SHARE = MARA_BTC_OWNED / get_shares_outstanding()
 THRESHOLD = 0.05  # 5% change triggers alert
 EMAIL_TO = os.environ.get("EMAIL_TO", "your_email@example.com")
 EMAIL_FROM = os.environ.get("EMAIL_FROM", "alertsender@example.com")
@@ -89,17 +85,16 @@ def get_btc_price():
 
 def get_mara_price():
     try:
-        print("🔄 Fetching MARA price from yfinance...")
         ticker = yf.Ticker("MARA")
         mara_price = ticker.info.get("currentPrice", 0)
-        print(f"✅ Cached MARA price: ${mara_price:.2f}")
         return mara_price
     except Exception as e:
         print(f"Error fetching MARA price: {e}")
         return 0
 
 def calculate_mnav(mara_price, btc_price):
-    return mara_price / (btc_price * BTC_PER_SHARE)
+    btc_per_share = MARA_BTC_OWNED / get_shares_outstanding()
+    return mara_price / (btc_price * btc_per_share)
 
 def send_email_alert(prev, curr, change, mara_price, btc_price):
     msg = EmailMessage()

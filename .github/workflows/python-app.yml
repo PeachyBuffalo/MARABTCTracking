@@ -48,8 +48,8 @@ jobs:
         
     - name: Test script imports
       run: |
-        python -c "import mnav_backtest; print('✅ mnav_backtest imports successfully')"
-        python -c "import mnav_alert; print('✅ mnav_alert imports successfully')"
+        timeout 30s python -c "import mnav_backtest; print('✅ mnav_backtest imports successfully')"
+        timeout 30s python -c "import mnav_alert; print('✅ mnav_alert imports successfully')"
         
     - name: Test basic functionality
       run: |
