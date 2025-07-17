@@ -10,9 +10,9 @@ import json
 import pickle
 
 # Configuration
-BTC_PER_SHARE = 0.00014243
 CACHE_DIR = "cache"
 CACHE_DURATION_HOURS = 24  # Cache data for 24 hours
+MARA_BTC_OWNED = 50000  # Update this as needed (from MARA's latest report)
 
 def ensure_cache_dir():
     """Ensure cache directory exists"""
@@ -158,6 +158,24 @@ def get_historical_mara_data(start_date, end_date):
         print(f"Error fetching MARA data with yfinance: {e}")
         return None
 
+def get_shares_outstanding():
+    """Fetch and cache MARA shares outstanding using yfinance"""
+    cache_key = "shares_outstanding.pkl"
+    cached = load_from_cache(cache_key)
+    if cached is not None:
+        print(f"📦 Using cached shares outstanding: {cached:,}")
+        return cached
+    try:
+        print("🔄 Fetching MARA shares outstanding from yfinance...")
+        ticker = yf.Ticker("MARA")
+        shares = ticker.info.get("sharesOutstanding", 351928000)
+        save_to_cache(shares, cache_key)
+        print(f"✅ Cached shares outstanding: {shares:,}")
+        return shares
+    except Exception as e:
+        print(f"Error fetching shares outstanding: {e}")
+        return 351928000
+
 def calculate_mnav_series(mara_df, btc_df):
     """Calculate MNav series from MARA and BTC data"""
     btc_daily = btc_df.resample('D').last()
@@ -167,7 +185,10 @@ def calculate_mnav_series(mara_df, btc_df):
         btc_daily.index = btc_daily.index.tz_localize(None)
     merged = mara_df.join(btc_daily, how='inner')
     merged.columns = ['open', 'high', 'low', 'close', 'volume', 'btc_price']
-    merged['mnav'] = merged['close'] / (merged['btc_price'] * BTC_PER_SHARE)
+    # Dynamically calculate BTC_PER_SHARE
+    shares_outstanding = get_shares_outstanding()
+    btc_per_share = MARA_BTC_OWNED / shares_outstanding
+    merged['mnav'] = merged['close'] / (merged['btc_price'] * btc_per_share)
     return merged
 
 def analyze_mnav_distribution(mnav_series):
@@ -340,6 +361,11 @@ def clear_cache():
         import shutil
         shutil.rmtree(CACHE_DIR)
         print("🗑️ Cache cleared")
+    # Also remove shares outstanding cache
+    shares_cache = get_cache_path("shares_outstanding.pkl")
+    if os.path.exists(shares_cache):
+        os.remove(shares_cache)
+        print("🗑️ Shares outstanding cache cleared")
 
 def main():
     print("🚀 Starting MNav Multi-Period Backtesting Analysis...")

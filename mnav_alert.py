@@ -5,13 +5,57 @@ from email.message import EmailMessage
 import schedule
 import time
 import os
+import pickle
 from dotenv import load_dotenv
 
 # Load environment variables from .env file if present
 load_dotenv()
 
+CACHE_DIR = "cache"
+MARA_BTC_OWNED = 50000  # Update this as needed (from MARA's latest report)
+
+def ensure_cache_dir():
+    if not os.path.exists(CACHE_DIR):
+        os.makedirs(CACHE_DIR)
+
+def get_cache_path(filename):
+    return os.path.join(CACHE_DIR, filename)
+
+def save_to_cache(data, filename):
+    ensure_cache_dir()
+    cache_path = get_cache_path(filename)
+    with open(cache_path, 'wb') as f:
+        pickle.dump(data, f)
+
+def load_from_cache(filename):
+    cache_path = get_cache_path(filename)
+    if os.path.exists(cache_path):
+        try:
+            with open(cache_path, 'rb') as f:
+                return pickle.load(f)
+        except:
+            pass
+    return None
+
+def get_shares_outstanding():
+    cache_key = "shares_outstanding.pkl"
+    cached = load_from_cache(cache_key)
+    if cached is not None:
+        print(f"📦 Using cached shares outstanding: {cached:,}")
+        return cached
+    try:
+        print("🔄 Fetching MARA shares outstanding from yfinance...")
+        ticker = yf.Ticker("MARA")
+        shares = ticker.info.get("sharesOutstanding", 351928000)
+        save_to_cache(shares, cache_key)
+        print(f"✅ Cached shares outstanding: {shares:,}")
+        return shares
+    except Exception as e:
+        print(f"Error fetching shares outstanding: {e}")
+        return 351928000
+
 # Configuration
-BTC_PER_SHARE = 0.00014243  # Based on 50,000 BTC
+BTC_PER_SHARE = MARA_BTC_OWNED / get_shares_outstanding()
 THRESHOLD = 0.05  # 5% change triggers alert
 EMAIL_TO = os.environ.get("EMAIL_TO", "your_email@example.com")
 EMAIL_FROM = os.environ.get("EMAIL_FROM", "alertsender@example.com")
