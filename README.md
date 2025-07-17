@@ -1,5 +1,9 @@
 # MARA BTC Tracking & MNav Backtesting
 
+[![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![CI](https://github.com/PeachyBuffalo/MARABTCTracking/actions/workflows/python-app.yml/badge.svg)](https://github.com/PeachyBuffalo/MARABTCTracking/actions/workflows/python-app.yml)
+
 ## Overview
 This project provides a robust system for:
 - **Monitoring and alerting** on MARA's MNav (Market NAV) changes
@@ -13,6 +17,16 @@ This project provides a robust system for:
 - Caching system for fast, rate-limit-free repeated runs
 - Fallback to multiple BTC APIs if CoinGecko is rate-limited
 - Easy-to-use alert script for live monitoring
+
+## Screenshots
+
+### Backtest Results
+![Backtest Output](docs/mnav_analysis.png)
+*MNav historical analysis showing trading thresholds and distribution over time*
+
+### Alert System
+![Alert Email](docs/alert_example.png)
+*Sample email alert when MNav changes exceed threshold*
 
 ## Setup
 1. **Clone the repository**
