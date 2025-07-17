@@ -35,14 +35,14 @@ def test_mara_ticker():
 
 def test_mnav_calculation():
     """Test MNav calculation logic"""
-    btc_per_share = 0.00014243
+    btc_per_share = BTC_PER_SHARE
     
     # Test with sample data
     mara_price = 20.0
     btc_price = 100000.0
-    expected_mnav = mara_price / (btc_price * btc_per_share)
+    expected_mnav = calculate_mnav(mara_price, btc_price, btc_per_share)
     
-    calculated_mnav = mara_price / (btc_price * btc_per_share)
+    calculated_mnav = calculate_mnav(mara_price, btc_price, btc_per_share)
     assert abs(calculated_mnav - expected_mnav) < 0.001
 
 if __name__ == "__main__":
