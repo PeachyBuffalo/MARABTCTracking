@@ -35,7 +35,7 @@ def test_mara_ticker():
 
 def test_mnav_calculation():
     """Test MNav calculation logic"""
-    btc_per_share = 0.00014243
+    btc_per_share = BTC_PER_SHARE
     
     # Test with sample data
     mara_price = 20.0
