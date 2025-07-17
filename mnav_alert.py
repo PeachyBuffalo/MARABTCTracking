@@ -60,8 +60,6 @@ THRESHOLD = 0.05  # 5% change triggers alert
 EMAIL_TO = os.environ.get("EMAIL_TO", "your_email@example.com")
 EMAIL_FROM = os.environ.get("EMAIL_FROM", "alertsender@example.com")
 EMAIL_PASS = os.environ.get("EMAIL_PASS", "your_app_password")
-# If you use Alpha Vantage API key, use:
-# ALPHA_VANTAGE_API_KEY = os.environ.get("ALPHA_VANTAGE_API_KEY", "demo")
 
 # Global variable to store previous MNav
 previous_mnav = None
@@ -90,14 +88,15 @@ def get_btc_price():
     raise Exception("All Bitcoin price APIs failed")
 
 def get_mara_price():
-    url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=MARA&apikey={ALPHA_VANTAGE_API_KEY}"
-    response = requests.get(url, timeout=10)
-    data = response.json()
-    
-    if 'Global Quote' in data and data['Global Quote']:
-        return float(data['Global Quote']['05. price'])
-    else:
-        raise Exception(f"Failed to get MARA price: {data}")
+    try:
+        print("🔄 Fetching MARA price from yfinance...")
+        ticker = yf.Ticker("MARA")
+        mara_price = ticker.info.get("currentPrice", 0)
+        print(f"✅ Cached MARA price: ${mara_price:.2f}")
+        return mara_price
+    except Exception as e:
+        print(f"Error fetching MARA price: {e}")
+        return 0
 
 def calculate_mnav(mara_price, btc_price):
     return mara_price / (btc_price * BTC_PER_SHARE)

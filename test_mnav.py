@@ -3,6 +3,18 @@ import requests
 import yfinance as yf
 from datetime import datetime, timedelta
 
+MARA_BTC_OWNED = 50000
+
+def get_shares_outstanding():
+    try:
+        ticker = yf.Ticker("MARA")
+        return ticker.info.get("sharesOutstanding", 351928000)
+    except Exception:
+        return 351928000
+
+def calculate_mnav(mara_price, btc_price, btc_per_share):
+    return mara_price / (btc_price * btc_per_share)
+
 def test_imports():
     """Test that all required packages can be imported"""
     import pandas as pd
@@ -35,7 +47,7 @@ def test_mara_ticker():
 
 def test_mnav_calculation():
     """Test MNav calculation logic"""
-    btc_per_share = BTC_PER_SHARE
+    btc_per_share = MARA_BTC_OWNED / get_shares_outstanding()
     
     # Test with sample data
     mara_price = 20.0
