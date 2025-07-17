@@ -130,7 +130,8 @@ def check_mnav():
 # Schedule it every hour
 schedule.every(1).hours.do(check_mnav)
 
-print("🚀 MNav monitor started. Waiting for next interval...")
-while True:
-    schedule.run_pending()
-    time.sleep(60) 
+if __name__ == "__main__":
+    print("🚀 MNav monitor started. Waiting for next interval...")
+    while True:
+        schedule.run_pending()
+        time.sleep(60) 

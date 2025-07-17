@@ -164,6 +164,12 @@ def get_shares_outstanding():
     cached = load_from_cache(cache_key)
     if cached is not None:
         return cached
+    
+    # Check if we're in a CI environment
+    if os.environ.get('CI') == 'true':
+        print("CI environment detected, using default shares outstanding")
+        return 351928000
+    
     try:
         ticker = yf.Ticker("MARA")
         shares = ticker.info.get("sharesOutstanding", 351928000)
@@ -388,4 +394,4 @@ def main():
     print("💾 Data cached in 'cache/' directory for faster future runs")
 
 if __name__ == "__main__":
-    main() 
+    main()
