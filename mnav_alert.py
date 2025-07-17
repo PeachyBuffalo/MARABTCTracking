@@ -1,13 +1,12 @@
 import requests
 import yfinance as yf
-import smtplib
-from email.message import EmailMessage
 import schedule
 import time
 import os
 import pickle
 from dotenv import load_dotenv
 import sys
+import subprocess
 
 # Load environment variables from .env file if present
 load_dotenv()
@@ -54,9 +53,6 @@ def get_shares_outstanding():
 
 # Configuration
 THRESHOLD = 0.05  # 5% change triggers alert
-EMAIL_TO = os.environ.get("EMAIL_TO", "your_email@example.com")
-EMAIL_FROM = os.environ.get("EMAIL_FROM", "alertsender@example.com")
-EMAIL_PASS = os.environ.get("EMAIL_PASS", "your_app_password")
 
 # Global variable to store previous MNav
 previous_mnav = None
@@ -97,17 +93,24 @@ def calculate_mnav(mara_price, btc_price):
     btc_per_share = MARA_BTC_OWNED / get_shares_outstanding()
     return mara_price / (btc_price * btc_per_share)
 
-def send_email_alert(prev, curr, change, mara_price, btc_price):
-    msg = EmailMessage()
-    msg["Subject"] = "🔔 MNav Drastic Change Alert"
-    msg["From"] = EMAIL_FROM
-    msg["To"] = EMAIL_TO
-    msg.set_content(f"""
-    ALERT: MNav changed by {change:.2f}%\n\n    Previous MNav: {prev:.3f}\n    Current MNav: {curr:.3f}\n\n    MARA Price: ${mara_price:.2f}\n    BTC Price: ${btc_price:,.2f}\n    """)
-    
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-        smtp.login(EMAIL_FROM, EMAIL_PASS)
-        smtp.send_message(msg)
+def send_mac_notification(title, message):
+    """Send a native macOS notification using terminal-notifier"""
+    try:
+        subprocess.run([
+            'terminal-notifier',
+            '-title', title,
+            '-message', message
+        ], check=True)
+        print("✅ Mac notification sent (terminal-notifier)!")
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Failed to send Mac notification: {e}")
+    except Exception as e:
+        print(f"❌ Error sending notification: {e}")
+
+def send_mnav_alert(prev, curr, change, mara_price, btc_price):
+    title = "🔔 MNav Alert"
+    message = f"MNav changed by {change:.2f}%\nPrevious: {prev:.3f} → Current: {curr:.3f}\nMARA: ${mara_price:.2f} | BTC: ${btc_price:,.0f}"
+    send_mac_notification(title, message)
 
 def check_mnav():
     global previous_mnav
@@ -124,7 +127,7 @@ def check_mnav():
     print(f"Current MNav: {current_mnav:.3f}, Change: {change*100:.2f}%")
 
     if abs(change) >= THRESHOLD:
-        send_email_alert(previous_mnav, current_mnav, change * 100, mara_price, btc_price)
+        send_mnav_alert(previous_mnav, current_mnav, change * 100, mara_price, btc_price)
 
     previous_mnav = current_mnav
 
@@ -132,11 +135,40 @@ def check_mnav():
 schedule.every(1).hours.do(check_mnav)
 
 def run_check_once():
-    # Call your main check logic here (the code that runs each interval)
-    check_mnav()  # Replace with your actual function
+    """Run a single check and always send a notification with current status"""
+    global previous_mnav
+    btc_price = get_btc_price()
+    mara_price = get_mara_price()
+    current_mnav = calculate_mnav(mara_price, btc_price)
+
+    if previous_mnav is None:
+        previous_mnav = current_mnav
+        print("Initialized MNav:", round(current_mnav, 3))
+        # Send notification for first run
+        send_mac_notification("🔔 MNav Monitor Started", f"Current MNav: {current_mnav:.3f}\nMARA: ${mara_price:.2f} | BTC: ${btc_price:,.0f}")
+        return
+
+    change = (current_mnav - previous_mnav) / previous_mnav
+    print(f"Current MNav: {current_mnav:.3f}, Change: {change*100:.2f}%")
+
+    # Always send notification for test-now
+    if abs(change) >= THRESHOLD:
+        title = "🔔 MNav Alert - Significant Change"
+        message = f"MNav changed by {change*100:.2f}%\nPrevious: {previous_mnav:.3f} → Current: {current_mnav:.3f}\nMARA: ${mara_price:.2f} | BTC: ${btc_price:,.0f}"
+    else:
+        title = "📊 MNav Status Check"
+        message = f"Current MNav: {current_mnav:.3f} (Change: {change*100:.2f}%)\nMARA: ${mara_price:.2f} | BTC: ${btc_price:,.0f}"
+
+    send_mac_notification(title, message)
+    previous_mnav = current_mnav
+
+def send_test_notification():
+    send_mac_notification("Test MNav Alert", "This is a test notification from your MNav alert script!")
 
 if __name__ == "__main__":
-    if "--test-now" in sys.argv:
+    if "--send-test-notification" in sys.argv:
+        send_test_notification()
+    elif "--test-now" in sys.argv:
         run_check_once()
     else:
         print("🚀 MNav monitor started. Waiting for next interval...")
