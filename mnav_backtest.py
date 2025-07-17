@@ -295,42 +295,47 @@ def analyze_trades(trades):
         print(f"Worst trade: {min(returns):.2f}%")
     return trades
 
-def plot_mnav_analysis(mnav_series, thresholds):
+def plot_mnav_analysis(mnav_series, thresholds, filename='mnav_analysis.png'):
     """Plot MNav analysis with thresholds"""
-    plt.figure(figsize=(15, 10))
-    
-    # Plot MNav over time
-    plt.subplot(2, 1, 1)
-    mnav_values = mnav_series['mnav'].dropna()
-    plt.plot(mnav_values.index, mnav_values.values, label='MNav', alpha=0.7)
-    
-    # Add threshold lines
-    for strategy, (buy_thresh, sell_thresh) in thresholds.items():
-        plt.axhline(y=buy_thresh, color='green', linestyle='--', alpha=0.5, 
-                   label=f'{strategy.title()} Buy ({buy_thresh:.3f})')
-        plt.axhline(y=sell_thresh, color='red', linestyle='--', alpha=0.5,
-                   label=f'{strategy.title()} Sell ({sell_thresh:.3f})')
-    
-    plt.title('MNav Historical Analysis with Trading Thresholds')
-    plt.ylabel('MNav')
-    plt.legend()
-    plt.grid(True, alpha=0.3)
-    
-    # Plot MNav distribution
-    plt.subplot(2, 1, 2)
-    plt.hist(mnav_values.values, bins=50, alpha=0.7, edgecolor='black')
-    plt.axvline(mnav_values.mean(), color='red', linestyle='-', label=f'Mean: {mnav_values.mean():.3f}')
-    plt.axvline(mnav_values.median(), color='blue', linestyle='-', label=f'Median: {mnav_values.median():.3f}')
-    
-    plt.title('MNav Distribution')
-    plt.xlabel('MNav')
-    plt.ylabel('Frequency')
-    plt.legend()
-    plt.grid(True, alpha=0.3)
-    
-    plt.tight_layout()
-    plt.savefig('mnav_analysis.png', dpi=300, bbox_inches='tight')
-    plt.show()
+    try:
+        plt.figure(figsize=(15, 10))
+        
+        # Plot MNav over time
+        plt.subplot(2, 1, 1)
+        mnav_values = mnav_series['mnav'].dropna()
+        plt.plot(mnav_values.index, mnav_values.values, label='MNav', alpha=0.7)
+        
+        # Add threshold lines
+        for strategy, (buy_thresh, sell_thresh) in thresholds.items():
+            plt.axhline(y=buy_thresh, color='green', linestyle='--', alpha=0.5, 
+                       label=f'{strategy.title()} Buy ({buy_thresh:.3f})')
+            plt.axhline(y=sell_thresh, color='red', linestyle='--', alpha=0.5,
+                       label=f'{strategy.title()} Sell ({sell_thresh:.3f})')
+        
+        plt.title('MNav Historical Analysis with Trading Thresholds')
+        plt.ylabel('MNav')
+        plt.legend()
+        plt.grid(True, alpha=0.3)
+        
+        # Plot MNav distribution
+        plt.subplot(2, 1, 2)
+        plt.hist(mnav_values.values, bins=50, alpha=0.7, edgecolor='black')
+        plt.axvline(mnav_values.mean(), color='red', linestyle='-', label=f'Mean: {mnav_values.mean():.3f}')
+        plt.axvline(mnav_values.median(), color='blue', linestyle='-', label=f'Median: {mnav_values.median():.3f}')
+        
+        plt.title('MNav Distribution')
+        plt.xlabel('MNav')
+        plt.ylabel('Frequency')
+        plt.legend()
+        plt.grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        plt.savefig(filename, dpi=300, bbox_inches='tight')
+        plt.close()  # Close the figure to free memory
+        print(f"📊 Plot saved as: {filename}")
+    except Exception as e:
+        print(f"❌ Error creating plot: {e}")
+        plt.close()  # Make sure to close any open figures
 
 def run_backtest_for_period(days, label):
     end_date = datetime.now()
@@ -350,6 +355,11 @@ def run_backtest_for_period(days, label):
     print(f"✅ Calculated {len(mnav_series)} data points")
     stats = analyze_mnav_distribution(mnav_series)
     thresholds = suggest_thresholds(stats)
+    
+    # Generate plot for this period
+    filename = f"mnav_analysis_{days}d.png"
+    plot_mnav_analysis(mnav_series, thresholds, filename)
+    
     results = {}
     for strategy, (buy_thresh, sell_thresh) in thresholds.items():
         print(f"\n--- Testing {strategy.title()} Strategy ---")
@@ -388,10 +398,25 @@ def main():
         (180, "6 Months"),
         (365, "1 Year")
     ]
+    
     for days, label in periods:
-        run_backtest_for_period(days, label)
+        try:
+            print(f"\n{'='*60}")
+            print(f"Processing {label} period...")
+            print(f"{'='*60}")
+            result = run_backtest_for_period(days, label)
+            if result is None:
+                print(f"⚠️ Skipping {label} due to data fetch issues")
+            else:
+                print(f"✅ {label} analysis completed successfully")
+        except Exception as e:
+            print(f"❌ Error processing {label}: {e}")
+            print(f"Continuing with next period...")
+            continue
+    
     print("\n✅ Multi-period backtesting complete!")
     print("💾 Data cached in 'cache/' directory for faster future runs")
+    print("📊 Check the generated PNG files for visual analysis")
 
 if __name__ == "__main__":
     main()
