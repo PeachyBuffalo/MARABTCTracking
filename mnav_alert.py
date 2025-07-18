@@ -33,7 +33,7 @@ def load_from_cache(filename):
         try:
             with open(cache_path, 'rb') as f:
                 return pickle.load(f)
-        except:
+        except Exception:
             pass
     return None
 
@@ -168,7 +168,6 @@ def send_mnav_alert(stock_config, prev, curr, change, stock_price, btc_price):
     send_mac_notification(title, message)
 
 def check_mnav():
-    global previous_mnav
     btc_price = get_btc_price()
     
     for stock_config in STOCKS_TO_MONITOR:
@@ -217,7 +216,6 @@ schedule.every(1).hours.do(check_mnav)
 
 def run_check_once():
     """Run a single check and always send a notification with current status"""
-    global previous_mnav
     btc_price = get_btc_price()
     
     for stock_config in STOCKS_TO_MONITOR:
