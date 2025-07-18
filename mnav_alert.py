@@ -33,29 +33,99 @@ def load_from_cache(filename):
         try:
             with open(cache_path, 'rb') as f:
                 return pickle.load(f)
-        except:
+        except Exception:
             pass
     return None
 
-def get_shares_outstanding():
-    cache_key = "shares_outstanding.pkl"
+def get_shares_outstanding(symbol):
+    cache_key = f"shares_outstanding_{symbol}.pkl"
     cached = load_from_cache(cache_key)
     if cached is not None:
         return cached
+    
+    # Check if we're in a CI environment
+    if os.environ.get('CI') == 'true':
+        print("CI environment detected, using default shares outstanding")
+        return 351928000
+    
     try:
-        ticker = yf.Ticker("MARA")
+        ticker = yf.Ticker(symbol)
         shares = ticker.info.get("sharesOutstanding", 351928000)
         save_to_cache(shares, cache_key)
         return shares
     except Exception as e:
-        print(f"Error fetching shares outstanding: {e}")
+        print(f"Error fetching shares outstanding for {symbol}: {e}")
         return 351928000
 
 # Configuration
 THRESHOLD = 0.05  # 5% change triggers alert
 
-# Global variable to store previous MNav
-previous_mnav = None
+# Multi-stock configuration
+STOCKS_TO_MONITOR = [
+    {
+        'symbol': 'MSTR',
+        'name': 'MicroStrategy',
+        'btc_owned': 601550,
+        'threshold': 0.05
+    },
+    {
+        'symbol': 'MARA',
+        'name': 'Marathon Digital',
+        'btc_owned': 50000,
+        'threshold': 0.05
+    },
+    {
+        'symbol': 'RIOT',
+        'name': 'Riot Platforms', 
+        'btc_owned': 19225,
+        'threshold': 0.05
+    },
+    {
+        'symbol': 'CLSK',
+        'name': 'CleanSpark',
+        'btc_owned': 12608,
+        'threshold': 0.05
+    },
+    {
+        'symbol': 'TSLA',
+        'name': 'Tesla',
+        'btc_owned': 11509,
+        'threshold': 0.05
+    },
+    {
+        'symbol': 'HUT',
+        'name': 'Hut 8 Mining',
+        'btc_owned': 10273,
+        'threshold': 0.05
+    },
+    {
+        'symbol': 'COIN',
+        'name': 'Coinbase',
+        'btc_owned': 9267,
+        'threshold': 0.05
+    },
+    {
+        'symbol': 'SQ',  # Block Inc. (formerly Square)
+        'name': 'Block Inc',
+        'btc_owned': 8584,
+        'threshold': 0.05
+    },
+    {
+        'symbol': 'HIVE',
+        'name': 'HIVE Digital',
+        'btc_owned': 2201,
+        'threshold': 0.05
+    },
+    {
+        'symbol': 'CIFR',
+        'name': 'Cipher Mining',
+        'btc_owned': 1063,
+        'threshold': 0.05
+    }
+]
+
+# Global variable to store previous MNav for each stock
+previous_mnav = {}
 
 def get_btc_price():
     # Try multiple APIs for reliability
@@ -80,18 +150,49 @@ def get_btc_price():
     
     raise Exception("All Bitcoin price APIs failed")
 
-def get_mara_price():
+def get_stock_price(symbol):
     try:
-        ticker = yf.Ticker("MARA")
-        mara_price = ticker.info.get("currentPrice", 0)
-        return mara_price
+        ticker = yf.Ticker(symbol)
+        price = ticker.info.get("currentPrice", 0)
+        return price
     except Exception as e:
-        print(f"Error fetching MARA price: {e}")
+        print(f"Error fetching {symbol} price: {e}")
         return 0
 
-def calculate_mnav(mara_price, btc_price):
-    btc_per_share = MARA_BTC_OWNED / get_shares_outstanding()
-    return mara_price / (btc_price * btc_per_share)
+def calculate_mnav(stock_price, btc_price, btc_per_share):
+    return stock_price / (btc_price * btc_per_share)
+
+def send_mnav_alert(stock_config, prev, curr, change, stock_price, btc_price):
+    title = f"🔔 {stock_config['name']} MNav Alert"
+    message = f"MNav changed by {change:.2f}%\nPrevious: {prev:.3f} → Current: {curr:.3f}\n{stock_config['symbol']}: ${stock_price:.2f} | BTC: ${btc_price:,.0f}"
+    send_mac_notification(title, message)
+
+def check_mnav():
+    btc_price = get_btc_price()
+    
+    for stock_config in STOCKS_TO_MONITOR:
+        symbol = stock_config['symbol']
+        stock_price = get_stock_price(symbol)
+        
+        if stock_price == 0:
+            print(f"⚠️ Skipping {symbol} - price fetch failed")
+            continue
+            
+        btc_per_share = stock_config['btc_owned'] / get_shares_outstanding(symbol)
+        current_mnav = calculate_mnav(stock_price, btc_price, btc_per_share)
+
+        if symbol not in previous_mnav:
+            previous_mnav[symbol] = current_mnav
+            print(f"Initialized {symbol} MNav: {current_mnav:.3f}")
+            continue
+
+        change = (current_mnav - previous_mnav[symbol]) / previous_mnav[symbol]
+        print(f"{symbol} MNav: {current_mnav:.3f}, Change: {change*100:.2f}%")
+
+        if abs(change) >= stock_config['threshold']:
+            send_mnav_alert(stock_config, previous_mnav[symbol], current_mnav, change * 100, stock_price, btc_price)
+
+        previous_mnav[symbol] = current_mnav
 
 def send_mac_notification(title, message):
     """Send a native macOS notification using terminal-notifier"""
@@ -107,63 +208,47 @@ def send_mac_notification(title, message):
     except Exception as e:
         print(f"❌ Error sending notification: {e}")
 
-def send_mnav_alert(prev, curr, change, mara_price, btc_price):
-    title = "🔔 MNav Alert"
-    message = f"MNav changed by {change:.2f}%\nPrevious: {prev:.3f} → Current: {curr:.3f}\nMARA: ${mara_price:.2f} | BTC: ${btc_price:,.0f}"
-    send_mac_notification(title, message)
-
-def check_mnav():
-    global previous_mnav
-    btc_price = get_btc_price()
-    mara_price = get_mara_price()
-    current_mnav = calculate_mnav(mara_price, btc_price)
-
-    if previous_mnav is None:
-        previous_mnav = current_mnav
-        print("Initialized MNav:", round(current_mnav, 3))
-        return
-
-    change = (current_mnav - previous_mnav) / previous_mnav
-    print(f"Current MNav: {current_mnav:.3f}, Change: {change*100:.2f}%")
-
-    if abs(change) >= THRESHOLD:
-        send_mnav_alert(previous_mnav, current_mnav, change * 100, mara_price, btc_price)
-
-    previous_mnav = current_mnav
+def send_test_notification():
+    send_mac_notification("Test MNav Alert", "This is a test notification from your MNav alert script!")
 
 # Schedule it every hour
 schedule.every(1).hours.do(check_mnav)
 
 def run_check_once():
     """Run a single check and always send a notification with current status"""
-    global previous_mnav
     btc_price = get_btc_price()
-    mara_price = get_mara_price()
-    current_mnav = calculate_mnav(mara_price, btc_price)
+    
+    for stock_config in STOCKS_TO_MONITOR:
+        symbol = stock_config['symbol']
+        stock_price = get_stock_price(symbol)
+        
+        if stock_price == 0:
+            print(f"⚠️ Skipping {symbol} - price fetch failed")
+            continue
+            
+        btc_per_share = stock_config['btc_owned'] / get_shares_outstanding(symbol)
+        current_mnav = calculate_mnav(stock_price, btc_price, btc_per_share)
 
-    if previous_mnav is None:
-        previous_mnav = current_mnav
-        print("Initialized MNav:", round(current_mnav, 3))
-        # Send notification for first run
-        send_mac_notification("🔔 MNav Monitor Started", f"Current MNav: {current_mnav:.3f}\nMARA: ${mara_price:.2f} | BTC: ${btc_price:,.0f}")
-        return
+        if symbol not in previous_mnav:
+            previous_mnav[symbol] = current_mnav
+            print(f"Initialized {symbol} MNav: {current_mnav:.3f}")
+            # Send notification for first run
+            send_mac_notification(f"🔔 {stock_config['name']} Monitor Started", f"Current {stock_config['name']} MNav: {current_mnav:.3f}\n{stock_config['symbol']}: ${stock_price:.2f} | BTC: ${btc_price:,.0f}")
+            continue
 
-    change = (current_mnav - previous_mnav) / previous_mnav
-    print(f"Current MNav: {current_mnav:.3f}, Change: {change*100:.2f}%")
+        change = (current_mnav - previous_mnav[symbol]) / previous_mnav[symbol]
+        print(f"{symbol} MNav: {current_mnav:.3f}, Change: {change*100:.2f}%")
 
-    # Always send notification for test-now
-    if abs(change) >= THRESHOLD:
-        title = "🔔 MNav Alert - Significant Change"
-        message = f"MNav changed by {change*100:.2f}%\nPrevious: {previous_mnav:.3f} → Current: {current_mnav:.3f}\nMARA: ${mara_price:.2f} | BTC: ${btc_price:,.0f}"
-    else:
-        title = "📊 MNav Status Check"
-        message = f"Current MNav: {current_mnav:.3f} (Change: {change*100:.2f}%)\nMARA: ${mara_price:.2f} | BTC: ${btc_price:,.0f}"
+        # Always send notification for test-now
+        if abs(change) >= stock_config['threshold']:
+            title = f"🔔 {stock_config['name']} Alert - Significant Change"
+            message = f"MNav changed by {change*100:.2f}%\nPrevious: {previous_mnav[symbol]:.3f} → Current: {current_mnav:.3f}\n{stock_config['symbol']}: ${stock_price:.2f} | BTC: ${btc_price:,.0f}"
+        else:
+            title = f"📊 {stock_config['name']} Status Check"
+            message = f"Current {stock_config['name']} MNav: {current_mnav:.3f} (Change: {change*100:.2f}%)\n{stock_config['symbol']}: ${stock_price:.2f} | BTC: ${btc_price:,.0f}"
 
-    send_mac_notification(title, message)
-    previous_mnav = current_mnav
-
-def send_test_notification():
-    send_mac_notification("Test MNav Alert", "This is a test notification from your MNav alert script!")
+        send_mac_notification(title, message)
+        previous_mnav[symbol] = current_mnav
 
 if __name__ == "__main__":
     if "--send-test-notification" in sys.argv:
