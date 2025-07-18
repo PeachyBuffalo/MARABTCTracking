@@ -12,7 +12,27 @@ import pickle
 # Configuration
 CACHE_DIR = "cache"
 CACHE_DURATION_HOURS = 24  # Cache data for 24 hours
-MARA_BTC_OWNED = 50000  # Update this as needed (from MARA's latest report)
+
+# Stock configuration - will be set based on command line argument
+STOCK_SYMBOL = "MARA"  # Default
+STOCK_NAME = "Marathon Digital"  # Default
+STOCK_BTC_OWNED = 50000  # Default
+
+def get_stock_config():
+    """Get stock configuration based on symbol"""
+    stock_configs = {
+        'MSTR': {'name': 'MicroStrategy', 'btc_owned': 601550},
+        'MARA': {'name': 'Marathon Digital', 'btc_owned': 50000},
+        'RIOT': {'name': 'Riot Platforms', 'btc_owned': 19225},
+        'CLSK': {'name': 'CleanSpark', 'btc_owned': 12608},
+        'TSLA': {'name': 'Tesla', 'btc_owned': 11509},
+        'HUT': {'name': 'Hut 8 Mining', 'btc_owned': 10273},
+        'COIN': {'name': 'Coinbase', 'btc_owned': 9267},
+        'SQ': {'name': 'Block Inc', 'btc_owned': 8584},
+        'HIVE': {'name': 'HIVE Digital', 'btc_owned': 2201},
+        'CIFR': {'name': 'Cipher Mining', 'btc_owned': 1063}
+    }
+    return stock_configs.get(STOCK_SYMBOL, {'name': STOCK_SYMBOL, 'btc_owned': 50000})
 
 def ensure_cache_dir():
     """Ensure cache directory exists"""
@@ -133,34 +153,9 @@ def get_btc_historical_data(start_date, end_date):
         print(f"All BTC data sources failed: {e}")
         return None
 
-def get_historical_mara_data(start_date, end_date):
-    """Fetch historical MARA data using yfinance with caching"""
-    # Try cache first
-    cache_key = f"mara_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.pkl"
-    cached_data = load_from_cache(cache_key)
-    if cached_data is not None:
-        print("📦 Using cached MARA data")
-        return cached_data
-    
-    try:
-        print("🔄 Fetching MARA data from yfinance...")
-        ticker = yf.Ticker("MARA")
-        df = ticker.history(start=start_date, end=end_date)
-        # Select only relevant columns and rename to lowercase
-        df = df[['Open', 'High', 'Low', 'Close', 'Volume']]
-        df.columns = [c.lower() for c in df.columns]
-        
-        # Cache the data
-        save_to_cache(df, cache_key)
-        print("✅ MARA data cached successfully")
-        return df
-    except Exception as e:
-        print(f"Error fetching MARA data with yfinance: {e}")
-        return None
-
 def get_shares_outstanding():
-    """Fetch and cache MARA shares outstanding using yfinance"""
-    cache_key = "shares_outstanding.pkl"
+    """Fetch and cache stock shares outstanding using yfinance"""
+    cache_key = f"shares_outstanding_{STOCK_SYMBOL}.pkl"
     cached = load_from_cache(cache_key)
     if cached is not None:
         return cached
@@ -171,13 +166,38 @@ def get_shares_outstanding():
         return 351928000
     
     try:
-        ticker = yf.Ticker("MARA")
+        ticker = yf.Ticker(STOCK_SYMBOL)
         shares = ticker.info.get("sharesOutstanding", 351928000)
         save_to_cache(shares, cache_key)
         return shares
     except Exception as e:
-        print(f"Error fetching shares outstanding: {e}")
+        print(f"Error fetching shares outstanding for {STOCK_SYMBOL}: {e}")
         return 351928000
+
+def get_historical_stock_data(start_date, end_date):
+    """Fetch historical stock data using yfinance with caching"""
+    # Try cache first
+    cache_key = f"{STOCK_SYMBOL.lower()}_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.pkl"
+    cached_data = load_from_cache(cache_key)
+    if cached_data is not None:
+        print(f"📦 Using cached {STOCK_SYMBOL} data")
+        return cached_data
+    
+    try:
+        print(f"🔄 Fetching {STOCK_SYMBOL} data from yfinance...")
+        ticker = yf.Ticker(STOCK_SYMBOL)
+        df = ticker.history(start=start_date, end=end_date)
+        # Select only relevant columns and rename to lowercase
+        df = df[['Open', 'High', 'Low', 'Close', 'Volume']]
+        df.columns = [c.lower() for c in df.columns]
+        
+        # Cache the data
+        save_to_cache(df, cache_key)
+        print(f"✅ {STOCK_SYMBOL} data cached successfully")
+        return df
+    except Exception as e:
+        print(f"Error fetching {STOCK_SYMBOL} data with yfinance: {e}")
+        return None
 
 def calculate_mnav_series(mara_df, btc_df):
     """Calculate MNav series from MARA and BTC data"""
@@ -190,7 +210,7 @@ def calculate_mnav_series(mara_df, btc_df):
     merged.columns = ['open', 'high', 'low', 'close', 'volume', 'btc_price']
     # Dynamically calculate BTC_PER_SHARE
     shares_outstanding = get_shares_outstanding()
-    btc_per_share = MARA_BTC_OWNED / shares_outstanding
+    btc_per_share = STOCK_BTC_OWNED / shares_outstanding
     merged['mnav'] = merged['close'] / (merged['btc_price'] * btc_per_share)
     return merged
 
@@ -341,23 +361,23 @@ def run_backtest_for_period(days, label):
     end_date = datetime.now()
     start_date = end_date - timedelta(days=days)
     print(f"\n===== {label} Backtest: {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')} =====")
-    print("📊 Fetching MARA historical data (yfinance)...")
-    mara_df = get_historical_mara_data(start_date, end_date)
-    if mara_df is None:
-        print("Failed to fetch MARA data")
+    print(f"📊 Fetching {STOCK_SYMBOL} historical data (yfinance)...")
+    stock_df = get_historical_stock_data(start_date, end_date)
+    if stock_df is None:
+        print(f"Failed to fetch {STOCK_SYMBOL} data")
         return None
     print("📊 Fetching BTC historical data (CoinGecko)...")
     btc_df = get_btc_historical_data(start_date, end_date)
     if btc_df is None:
         print("Failed to fetch BTC data")
         return None
-    mnav_series = calculate_mnav_series(mara_df, btc_df)
+    mnav_series = calculate_mnav_series(stock_df, btc_df)
     print(f"✅ Calculated {len(mnav_series)} data points")
     stats = analyze_mnav_distribution(mnav_series)
     thresholds = suggest_thresholds(stats)
     
     # Generate plot for this period
-    filename = f"mnav_analysis_{days}d.png"
+    filename = f"mnav_analysis_{STOCK_SYMBOL}_{days}d.png"
     plot_mnav_analysis(mnav_series, thresholds, filename)
     
     results = {}
@@ -381,14 +401,33 @@ def clear_cache():
         print("🗑️ Shares outstanding cache cleared")
 
 def main():
-    print("🚀 Starting MNav Multi-Period Backtesting Analysis...")
-    print("Using: yfinance (MARA), CoinGecko (BTC) with caching and fallbacks")
-    print("💡 Tip: Use --clear-cache to refresh data")
+    global STOCK_SYMBOL, STOCK_NAME, STOCK_BTC_OWNED
     
-    # Check for clear cache argument
+    # Parse command line arguments
     import sys
-    if len(sys.argv) > 1 and sys.argv[1] == '--clear-cache':
-        clear_cache()
+    if len(sys.argv) > 1:
+        if sys.argv[1] == '--clear-cache':
+            clear_cache()
+            return
+        elif sys.argv[1] == '--help':
+            print("Usage: python mnav_backtest.py [STOCK_SYMBOL] [--clear-cache]")
+            print("Available stocks: MSTR, MARA, RIOT, CLSK, TSLA, HUT, COIN, SQ, HIVE, CIFR")
+            print("Example: python mnav_backtest.py MSTR")
+            print("Example: python mnav_backtest.py RIOT --clear-cache")
+            return
+        else:
+            STOCK_SYMBOL = sys.argv[1].upper()
+    
+    # Get stock configuration
+    stock_config = get_stock_config()
+    STOCK_NAME = stock_config['name']
+    STOCK_BTC_OWNED = stock_config['btc_owned']
+    
+    print(f"🚀 Starting {STOCK_NAME} ({STOCK_SYMBOL}) Multi-Period Backtesting Analysis...")
+    print(f"Using: yfinance ({STOCK_SYMBOL}), CoinGecko (BTC) with caching and fallbacks")
+    print(f"BTC Holdings: {STOCK_BTC_OWNED:,} BTC")
+    print("💡 Tip: Use --clear-cache to refresh data")
+    print("💡 Tip: Use --help to see available stocks")
     
     periods = [
         (1, "1 Day"),
