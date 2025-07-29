@@ -129,7 +129,6 @@ def get_btc_price_current():
 
 def get_btc_historical_data(start_date, end_date):
     """Fetch historical BTC data using local data or APIs with caching"""
-    global force_real_data
     # Try local data first
     local_data = load_local_btc_data()
     if local_data is not None:
@@ -473,7 +472,6 @@ def get_shares_outstanding():
 
 def get_historical_stock_data(start_date, end_date):
     """Fetch historical stock data using local data or yfinance with caching"""
-    global force_real_data
     # Try local data first
     local_data = load_local_stock_data(STOCK_SYMBOL)
     if local_data is not None:
