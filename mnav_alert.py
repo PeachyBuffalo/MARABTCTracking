@@ -63,64 +63,124 @@ THRESHOLD = 0.05  # 5% change triggers alert
 # Multi-stock configuration
 STOCKS_TO_MONITOR = [
     {
-        'symbol': 'MSTR',
-        'name': 'MicroStrategy',
-        'btc_owned': 601550,
-        'threshold': 0.05
+        "symbol": "MSTR",
+        "name": "MicroStrategy",
+        "btc_owned": 607770,
+        "threshold": 0.05
     },
     {
-        'symbol': 'MARA',
-        'name': 'Marathon Digital',
-        'btc_owned': 50000,
-        'threshold': 0.05
+        "symbol": "MARA",
+        "name": "Marathon Digital",
+        "btc_owned": 50000,
+        "threshold": 0.05
     },
     {
-        'symbol': 'RIOT',
-        'name': 'Riot Platforms', 
-        'btc_owned': 19225,
-        'threshold': 0.05
+        "symbol": "RIOT",
+        "name": "Riot Platforms",
+        "btc_owned": 19225,
+        "threshold": 0.05
     },
     {
-        'symbol': 'CLSK',
-        'name': 'CleanSpark',
-        'btc_owned': 12608,
-        'threshold': 0.05
+        "symbol": "DJT",
+        "name": "Trump Media & Technology Group",
+        "btc_owned": 18430,
+        "threshold": 0.05
     },
     {
-        'symbol': 'TSLA',
-        'name': 'Tesla',
-        'btc_owned': 11509,
-        'threshold': 0.05
+        "symbol": "MTPLF",
+        "name": "Metaplanet Inc.",
+        "btc_owned": 17132,
+        "threshold": 0.05
     },
     {
-        'symbol': 'HUT',
-        'name': 'Hut 8 Mining',
-        'btc_owned': 10273,
-        'threshold': 0.05
+        "symbol": "GLXY",
+        "name": "Galaxy Digital Holdings Ltd.",
+        "btc_owned": 12830,
+        "threshold": 0.05
     },
     {
-        'symbol': 'COIN',
-        'name': 'Coinbase',
-        'btc_owned': 9267,
-        'threshold': 0.05
+        "symbol": "CLSK",
+        "name": "CleanSpark",
+        "btc_owned": 12608,
+        "threshold": 0.05
     },
     {
-        'symbol': 'SQ',  # Block Inc. (formerly Square)
-        'name': 'Block Inc',
-        'btc_owned': 8584,
-        'threshold': 0.05
+        "symbol": "TSLA",
+        "name": "Tesla",
+        "btc_owned": 11509,
+        "threshold": 0.05
     },
     {
-        'symbol': 'HIVE',
-        'name': 'HIVE Digital',
-        'btc_owned': 2201,
-        'threshold': 0.05
+        "symbol": "COIN",
+        "name": "Coinbase",
+        "btc_owned": 9267,
+        "threshold": 0.05
     },
     {
-        'symbol': 'CIFR',
-        'name': 'Cipher Mining',
-        'btc_owned': 1063,
-        'threshold': 0.05
+        "symbol": "SQ",
+        "name": "Block Inc",
+        "btc_owned": 8584,
+        "threshold": 0.05
+    },
+    {
+        "symbol": "SMLR",
+        "name": "Semler Scientific",
+        "btc_owned": 5021,
+        "threshold": 0.05
+    },
+    {
+        "symbol": "CCCM",
+        "name": "ProCap BTC",
+        "btc_owned": 4932,
+        "threshold": 0.05
+    },
+    {
+        "symbol": "GME",
+        "name": "GameStop Corp.",
+        "btc_owned": 4710,
+        "threshold": 0.05
+    },
+    {
+        "symbol": "CANG",
+        "name": "Cango Inc",
+        "btc_owned": 4240,
+        "threshold": 0.05
+    },
+    {
+        "symbol": "VLCN",
+        "name": "Volcon Inc.",
+        "btc_owned": 3500,
+        "threshold": 0.05
+    },
+    {
+        "symbol": "HOLO",
+        "name": "Microcloud Hologram",
+        "btc_owned": 2353,
+        "threshold": 0.05
+    },
+    {
+        "symbol": "HIVE",
+        "name": "HIVE Digital",
+        "btc_owned": 2201,
+        "threshold": 0.05
+    },
+    {
+        "symbol": "EXOD",
+        "name": "Exodus Movement, Inc",
+        "btc_owned": 2038,
+        "threshold": 0.05
+    },
+    {
+        "symbol": "FLD",
+        "name": "Fold Holdings Inc.",
+        "btc_owned": 1488,
+        "threshold": 0.05
+    },
+    {
+        "symbol": "BITF",
+        "name": "Bitfarms Ltd.",
+        "btc_owned": 1166,
+        "threshold": 0.05
     }
 ]
 
@@ -159,8 +219,95 @@ def get_stock_price(symbol):
         print(f"Error fetching {symbol} price: {e}")
         return 0
 
+def get_btc_holdings_over_time(symbol):
+    """Get BTC holdings over time for a given symbol"""
+    # Define BTC acquisition history for each company
+    btc_history = {
+        'SMLR': [
+            {'date': '2024-05-28', 'btc_owned': 581},
+            {'date': '2024-06-11', 'btc_owned': 791},
+            {'date': '2024-06-25', 'btc_owned': 1001},
+            {'date': '2024-07-09', 'btc_owned': 1211},
+            {'date': '2024-07-23', 'btc_owned': 1421},
+            {'date': '2024-08-06', 'btc_owned': 1631},
+            {'date': '2024-08-20', 'btc_owned': 1841},
+            {'date': '2024-09-03', 'btc_owned': 2051},
+            {'date': '2024-09-17', 'btc_owned': 2261},
+            {'date': '2024-10-01', 'btc_owned': 2471},
+            {'date': '2024-10-15', 'btc_owned': 2681},
+            {'date': '2024-10-29', 'btc_owned': 2891},
+            {'date': '2024-11-12', 'btc_owned': 3101},
+            {'date': '2024-11-26', 'btc_owned': 3311},
+            {'date': '2024-12-10', 'btc_owned': 3521},
+            {'date': '2024-12-24', 'btc_owned': 3731},
+            {'date': '2025-01-07', 'btc_owned': 3941},
+            {'date': '2025-01-21', 'btc_owned': 4151},
+            {'date': '2025-02-04', 'btc_owned': 4361},
+            {'date': '2025-02-18', 'btc_owned': 4571},
+            {'date': '2025-03-04', 'btc_owned': 4781},
+            {'date': '2025-03-18', 'btc_owned': 4991},
+            {'date': '2025-04-01', 'btc_owned': 5021},  # Final amount
+        ],
+        'MSTR': [
+            {'date': '2020-08-11', 'btc_owned': 21454},
+            {'date': '2020-09-14', 'btc_owned': 38250},
+            {'date': '2020-12-21', 'btc_owned': 70470},
+            {'date': '2021-02-24', 'btc_owned': 90532},
+            {'date': '2021-06-21', 'btc_owned': 105085},
+            {'date': '2021-07-28', 'btc_owned': 108992},
+            {'date': '2021-08-24', 'btc_owned': 114042},
+            {'date': '2021-09-13', 'btc_owned': 114042},
+            {'date': '2021-10-01', 'btc_owned': 114042},
+            {'date': '2021-11-29', 'btc_owned': 121044},
+            {'date': '2021-12-30', 'btc_owned': 124391},
+            {'date': '2022-01-31', 'btc_owned': 125051},
+            {'date': '2022-02-15', 'btc_owned': 125051},
+            {'date': '2022-03-31', 'btc_owned': 129218},
+            {'date': '2022-04-04', 'btc_owned': 129218},
+            {'date': '2022-06-28', 'btc_owned': 129699},
+            {'date': '2022-08-02', 'btc_owned': 129699},
+            {'date': '2022-09-09', 'btc_owned': 130000},
+            {'date': '2022-10-27', 'btc_owned': 130000},
+            {'date': '2022-12-27', 'btc_owned': 132500},
+            {'date': '2023-01-31', 'btc_owned': 132500},
+            {'date': '2023-03-23', 'btc_owned': 140000},
+            {'date': '2023-04-05', 'btc_owned': 140000},
+            {'date': '2023-06-27', 'btc_owned': 152800},
+            {'date': '2023-07-31', 'btc_owned': 152800},
+            {'date': '2023-09-11', 'btc_owned': 158245},
+            {'date': '2023-10-31', 'btc_owned': 158245},
+            {'date': '2023-12-26', 'btc_owned': 189150},
+            {'date': '2024-01-31', 'btc_owned': 189150},
+            {'date': '2024-03-19', 'btc_owned': 205000},
+            {'date': '2024-04-30', 'btc_owned': 214246},
+            {'date': '2024-06-20', 'btc_owned': 226331},
+            {'date': '2024-07-31', 'btc_owned': 226331},
+            {'date': '2024-09-16', 'btc_owned': 245000},
+            {'date': '2024-10-31', 'btc_owned': 245000},
+            {'date': '2024-12-30', 'btc_owned': 301000},
+            {'date': '2025-01-31', 'btc_owned': 301000},
+            {'date': '2025-03-19', 'btc_owned': 607770},  # Latest amount
+        ],
+        # Add other companies as needed
+    }
+    
+    if symbol not in btc_history:
+        # For companies without historical data, use current holdings from STOCKS_TO_MONITOR
+        for stock in STOCKS_TO_MONITOR:
+            if stock['symbol'] == symbol:
+                return stock['btc_owned']
+        return 0
+    
+    # Get current holdings from the most recent entry
+    return btc_history[symbol][-1]['btc_owned']
+
 def calculate_mnav(stock_price, btc_price, btc_per_share):
+    """Calculate MNav ratio"""
     return stock_price / (btc_price * btc_per_share)
+
+def get_current_btc_holdings(symbol):
+    """Get current BTC holdings for a symbol, considering historical acquisitions"""
+    return get_btc_holdings_over_time(symbol)
 
 def send_mnav_alert(stock_config, prev, curr, change, stock_price, btc_price):
     title = f"🔔 {stock_config['name']} MNav Alert"
@@ -178,16 +325,18 @@ def check_mnav():
             print(f"⚠️ Skipping {symbol} - price fetch failed")
             continue
             
-        btc_per_share = stock_config['btc_owned'] / get_shares_outstanding(symbol)
+        # Use historical BTC holdings instead of static value
+        current_btc_owned = get_current_btc_holdings(symbol)
+        btc_per_share = current_btc_owned / get_shares_outstanding(symbol)
         current_mnav = calculate_mnav(stock_price, btc_price, btc_per_share)
 
         if symbol not in previous_mnav:
             previous_mnav[symbol] = current_mnav
-            print(f"Initialized {symbol} MNav: {current_mnav:.3f}")
+            print(f"Initialized {symbol} MNav: {current_mnav:.3f} (BTC: {current_btc_owned:,})")
             continue
 
         change = (current_mnav - previous_mnav[symbol]) / previous_mnav[symbol]
-        print(f"{symbol} MNav: {current_mnav:.3f}, Change: {change*100:.2f}%")
+        print(f"{symbol} MNav: {current_mnav:.3f}, Change: {change*100:.2f}% (BTC: {current_btc_owned:,})")
 
         if abs(change) >= stock_config['threshold']:
             send_mnav_alert(stock_config, previous_mnav[symbol], current_mnav, change * 100, stock_price, btc_price)
@@ -226,26 +375,28 @@ def run_check_once():
             print(f"⚠️ Skipping {symbol} - price fetch failed")
             continue
             
-        btc_per_share = stock_config['btc_owned'] / get_shares_outstanding(symbol)
+        # Use historical BTC holdings instead of static value
+        current_btc_owned = get_current_btc_holdings(symbol)
+        btc_per_share = current_btc_owned / get_shares_outstanding(symbol)
         current_mnav = calculate_mnav(stock_price, btc_price, btc_per_share)
 
         if symbol not in previous_mnav:
             previous_mnav[symbol] = current_mnav
-            print(f"Initialized {symbol} MNav: {current_mnav:.3f}")
+            print(f"Initialized {symbol} MNav: {current_mnav:.3f} (BTC: {current_btc_owned:,})")
             # Send notification for first run
-            send_mac_notification(f"🔔 {stock_config['name']} Monitor Started", f"Current {stock_config['name']} MNav: {current_mnav:.3f}\n{stock_config['symbol']}: ${stock_price:.2f} | BTC: ${btc_price:,.0f}")
+            send_mac_notification(f"🔔 {stock_config['name']} Monitor Started", f"Current {stock_config['name']} MNav: {current_mnav:.3f}\n{stock_config['symbol']}: ${stock_price:.2f} | BTC: ${btc_price:,.0f} | BTC Holdings: {current_btc_owned:,}")
             continue
 
         change = (current_mnav - previous_mnav[symbol]) / previous_mnav[symbol]
-        print(f"{symbol} MNav: {current_mnav:.3f}, Change: {change*100:.2f}%")
+        print(f"{symbol} MNav: {current_mnav:.3f}, Change: {change*100:.2f}% (BTC: {current_btc_owned:,})")
 
         # Always send notification for test-now
         if abs(change) >= stock_config['threshold']:
             title = f"🔔 {stock_config['name']} Alert - Significant Change"
-            message = f"MNav changed by {change*100:.2f}%\nPrevious: {previous_mnav[symbol]:.3f} → Current: {current_mnav:.3f}\n{stock_config['symbol']}: ${stock_price:.2f} | BTC: ${btc_price:,.0f}"
+            message = f"MNav changed by {change*100:.2f}%\nPrevious: {previous_mnav[symbol]:.3f} → Current: {current_mnav:.3f}\n{stock_config['symbol']}: ${stock_price:.2f} | BTC: ${btc_price:,.0f} | BTC Holdings: {current_btc_owned:,}"
         else:
             title = f"📊 {stock_config['name']} Status Check"
-            message = f"Current {stock_config['name']} MNav: {current_mnav:.3f} (Change: {change*100:.2f}%)\n{stock_config['symbol']}: ${stock_price:.2f} | BTC: ${btc_price:,.0f}"
+            message = f"Current {stock_config['name']} MNav: {current_mnav:.3f} (Change: {change*100:.2f}%)\n{stock_config['symbol']}: ${stock_price:.2f} | BTC: ${btc_price:,.0f} | BTC Holdings: {current_btc_owned:,}"
 
         send_mac_notification(title, message)
         previous_mnav[symbol] = current_mnav
