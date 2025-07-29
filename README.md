@@ -16,6 +16,7 @@ This project provides a comprehensive system for:
 - **Multi-Stock Monitoring**: Tracks 10+ major Bitcoin-holding companies (MSTR, MARA, RIOT, CLSK, TSLA, HUT, COIN, SQ, HIVE, CIFR)
 - **Real-time Alerts**: Native macOS notifications for significant MNav changes
 - **Pattern Analysis**: Advanced pattern recognition and prediction systems
+- **NAV and MNav Analysis**: Comprehensive Net Asset Value and Market NAV analysis
 - **Historical Analysis**: Fetches historical stock prices (yfinance) and BTC prices (multiple APIs with fallbacks)
 - **Multi-period Backtesting**: 1 day, 1 week, 1 month, 3 months, 6 months, 1 year
 - **Buy/sell threshold suggestions** based on MNav distribution
@@ -152,6 +153,24 @@ Set up daily automated updates:
 python setup_daily_updates.py
 ```
 
+### NAV and MNav Analysis
+Analyze NAV and MNav for individual stocks:
+```bash
+python analyze_stock.py MSTR
+python analyze_stock.py MARA
+python analyze_stock.py RIOT
+```
+
+Run comprehensive NAV and MNav analysis for all stocks:
+```bash
+python nav_mnav_analyzer.py
+```
+
+Demo NAV and MNav calculations:
+```bash
+python nav_mnav_demo.py
+```
+
 ## Configuration
 - **Cache duration**: Change `CACHE_DURATION_HOURS` in `mnav_backtest.py` to adjust cache expiry
 - **BTC price APIs**: The script automatically tries CoinGecko, Binance, and CoinDesk for BTC prices
@@ -177,6 +196,9 @@ MARABTCTracking/
 ├── add_btc_history.py         # BTC historical data management
 ├── calculate_btc_ratio.py     # BTC ratio calculations
 ├── setup_daily_updates.py     # Daily update configuration
+├── nav_mnav_analyzer.py       # Comprehensive NAV/MNav analysis
+├── analyze_stock.py           # Individual stock NAV/MNav analysis
+├── nav_mnav_demo.py           # NAV/MNav calculation demo
 ├── cache/                     # Cached data (gitignored)
 ├── local_data/                # Local data storage (gitignored)
 ├── docs/                      # Documentation
