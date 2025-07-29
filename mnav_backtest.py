@@ -39,10 +39,13 @@ STOCK_SYMBOL = "MARA"  # Default
 STOCK_NAME = "Marathon Digital"  # Default
 STOCK_BTC_OWNED = 50000  # Default
 
+# Global flag for forcing real data (no mock data fallback)
+force_real_data = False
+
 def get_stock_config():
     """Get stock configuration based on symbol"""
     stock_configs = {
-        'MSTR': {'name': 'MicroStrategy', 'btc_owned': 601550},
+        'MSTR': {'name': 'MicroStrategy', 'btc_owned': 607770},
         'MARA': {'name': 'Marathon Digital', 'btc_owned': 50000},
         'RIOT': {'name': 'Riot Platforms', 'btc_owned': 19225},
         'CLSK': {'name': 'CleanSpark', 'btc_owned': 12608},
@@ -126,6 +129,7 @@ def get_btc_price_current():
 
 def get_btc_historical_data(start_date, end_date):
     """Fetch historical BTC data using local data or APIs with caching"""
+    global force_real_data
     # Try local data first
     local_data = load_local_btc_data()
     if local_data is not None:
@@ -443,17 +447,33 @@ def get_shares_outstanding():
         print("CI environment detected, using default shares outstanding")
         return 351928000
     
+    # Updated shares outstanding values based on recent filings
+    default_shares = {
+        'MSTR': 283544304,  # Updated from current market cap and share price
+        'MARA': 351928000,  # Placeholder - needs verification
+        'RIOT': 351928000,  # Placeholder - needs verification
+        'CLSK': 351928000,  # Placeholder - needs verification
+        'TSLA': 351928000,  # Placeholder - needs verification
+        'HUT': 351928000,   # Placeholder - needs verification
+        'COIN': 351928000,  # Placeholder - needs verification
+        'SQ': 351928000,    # Placeholder - needs verification
+        'SMLR': 351928000,  # Placeholder - needs verification
+        'HIVE': 351928000,  # Placeholder - needs verification
+        'CIFR': 351928000   # Placeholder - needs verification
+    }
+    
     try:
         ticker = yf.Ticker(STOCK_SYMBOL)
-        shares = ticker.info.get("sharesOutstanding", 351928000)
+        shares = ticker.info.get("sharesOutstanding", default_shares.get(STOCK_SYMBOL, 351928000))
         save_to_cache(shares, cache_key)
         return shares
     except Exception as e:
         print(f"Error fetching shares outstanding for {STOCK_SYMBOL}: {e}")
-        return 351928000
+        return default_shares.get(STOCK_SYMBOL, 351928000)
 
 def get_historical_stock_data(start_date, end_date):
     """Fetch historical stock data using local data or yfinance with caching"""
+    global force_real_data
     # Try local data first
     local_data = load_local_stock_data(STOCK_SYMBOL)
     if local_data is not None:
@@ -727,7 +747,7 @@ def calculate_mnav_series(mara_df, btc_df):
             print("⚠️ Alternative merge also failed")
             return None
         # Forward fill missing values
-        merged = merged.fillna(method='ffill').fillna(method='bfill')
+        merged = merged.ffill().bfill()
         print(f"✅ Alternative merge successful, shape: {merged.shape}")
     
     # Ensure we have the right columns
@@ -738,7 +758,7 @@ def calculate_mnav_series(mara_df, btc_df):
     
     # Add BTC holdings column by forward-filling the holdings data
     merged = merged.join(btc_holdings_df, how='left')
-    merged['btc_owned'] = merged['btc_owned'].fillna(method='ffill')
+    merged['btc_owned'] = merged['btc_owned'].ffill()
     
     # If no historical data, use current holdings
     if merged['btc_owned'].isna().all():
@@ -971,7 +991,7 @@ def load_local_btc_data():
         return None
 
 def main():
-    global STOCK_SYMBOL, STOCK_NAME, STOCK_BTC_OWNED
+    global STOCK_SYMBOL, STOCK_NAME, STOCK_BTC_OWNED, force_real_data
     
     # Parse command line arguments
     import sys
