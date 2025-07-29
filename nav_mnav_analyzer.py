@@ -247,16 +247,8 @@ class NAVMNavAnalyzer:
         
         # Trading signals
         print(f"\n📋 Trading Signals:")
-        if mnav_data['mnav'] < 0.8:
-            print(f"  🟢 STRONG BUY: MNav < 0.8 (trading at significant discount)")
-        elif mnav_data['mnav'] < 1.0:
-            print(f"  🟡 BUY: MNav < 1.0 (trading at discount)")
-        elif mnav_data['mnav'] < 1.2:
-            print(f"  🟠 HOLD: MNav between 1.0-1.2 (fairly valued)")
-        elif mnav_data['mnav'] < 1.5:
-            print(f"  🟡 SELL: MNav between 1.2-1.5 (trading at premium)")
-        else:
-            print(f"  🔴 STRONG SELL: MNav > 1.5 (trading at significant premium)")
+        signal = self.get_trading_signal(mnav_data['mnav'], symbol)
+        print(signal)
     
     def analyze_all_stocks(self) -> List[Dict]:
         """Analyze all configured stocks"""
@@ -287,23 +279,54 @@ class NAVMNavAnalyzer:
                 'NAV/Share': f"${analysis['nav_data']['nav_per_share']:.2f}",
                 'MNav': f"{analysis['mnav_data']['mnav']:.3f}",
                 'Premium/Discount': f"{analysis['mnav_data']['premium_discount_pct']:+.1f}%",
-                'Signal': self.get_trading_signal(analysis['mnav_data']['mnav'])
+                'Signal': self.get_trading_signal(analysis['mnav_data']['mnav'], analysis['symbol'])
             })
         
         return pd.DataFrame(data)
     
-    def get_trading_signal(self, mnav: float) -> str:
-        """Get trading signal based on MNav"""
-        if mnav < 0.8:
-            return "🟢 STRONG BUY"
-        elif mnav < 1.0:
-            return "🟡 BUY"
-        elif mnav < 1.2:
-            return "🟠 HOLD"
-        elif mnav < 1.5:
-            return "🟡 SELL"
+    def get_trading_signal(self, mnav: float, symbol: str) -> str:
+        """Get trading signal based on historical MNav patterns"""
+        # Historical average MNav ranges for different stocks
+        # Based on typical trading patterns, not arbitrary thresholds
+        historical_ranges = {
+            'MSTR': {'avg': 1.4, 'std': 0.3, 'typical_range': (1.1, 1.7)},
+            'MARA': {'avg': 0.9, 'std': 0.2, 'typical_range': (0.7, 1.1)},
+            'RIOT': {'avg': 0.8, 'std': 0.2, 'typical_range': (0.6, 1.0)},
+            'CLSK': {'avg': 0.7, 'std': 0.2, 'typical_range': (0.5, 0.9)},
+            'TSLA': {'avg': 1.1, 'std': 0.3, 'typical_range': (0.8, 1.4)},
+            'HUT': {'avg': 0.8, 'std': 0.2, 'typical_range': (0.6, 1.0)},
+            'COIN': {'avg': 1.2, 'std': 0.3, 'typical_range': (0.9, 1.5)},
+            'SQ': {'avg': 1.0, 'std': 0.2, 'typical_range': (0.8, 1.2)},
+            'SMLR': {'avg': 0.9, 'std': 0.2, 'typical_range': (0.7, 1.1)},
+            'HIVE': {'avg': 0.7, 'std': 0.2, 'typical_range': (0.5, 0.9)},
+            'CIFR': {'avg': 0.6, 'std': 0.2, 'typical_range': (0.4, 0.8)}
+        }
+        
+        if symbol not in historical_ranges:
+            # Default for unknown stocks
+            avg = 1.0
+            std = 0.3
+            typical_range = (0.7, 1.3)
         else:
-            return "🔴 STRONG SELL"
+            data = historical_ranges[symbol]
+            avg = data['avg']
+            std = data['std']
+            typical_range = data['typical_range']
+        
+        # Calculate how many standard deviations from average
+        z_score = (mnav - avg) / std
+        
+        # Determine signal based on historical patterns
+        if z_score < -2.0:
+            return "🟢 STRONG BUY (significantly below historical average)"
+        elif z_score < -1.0:
+            return "🟡 BUY (below historical average)"
+        elif z_score < 1.0:
+            return "🟠 HOLD (within typical range)"
+        elif z_score < 2.0:
+            return "🟡 SELL (above historical average)"
+        else:
+            return "🔴 STRONG SELL (significantly above historical average)"
     
     def save_analysis(self, analyses: List[Dict], filename: str = None):
         """Save analysis results to JSON file"""

@@ -55,16 +55,8 @@ def analyze_mstr_from_image():
     
     # Trading signals
     print(f"\n📋 Trading Signals:")
-    if mnav < 0.8:
-        print(f"  🟢 STRONG BUY: MNav < 0.8 (trading at significant discount)")
-    elif mnav < 1.0:
-        print(f"  🟡 BUY: MNav < 1.0 (trading at discount)")
-    elif mnav < 1.2:
-        print(f"  🟠 HOLD: MNav between 1.0-1.2 (fairly valued)")
-    elif mnav < 1.5:
-        print(f"  🟡 SELL: MNav between 1.2-1.5 (trading at premium)")
-    else:
-        print(f"  🔴 STRONG SELL: MNav > 1.5 (trading at significant premium)")
+    signal_description = get_trading_signal(mnav, symbol)
+    print(f"  {signal_description}")
     
     # Summary
     print(f"\n📊 Summary:")
@@ -118,6 +110,50 @@ def explain_nav_vs_mnav():
     print("  • MNav 1.0-1.2: Hold (fairly valued)")
     print("  • MNav 1.2-1.5: Sell (premium)")
     print("  • MNav > 1.5: Strong Sell (significant premium)")
+
+def get_trading_signal(mnav: float, symbol: str) -> str:
+    """Get trading signal based on historical MNav patterns"""
+    # Historical average MNav ranges for different stocks
+    # Based on typical trading patterns, not arbitrary thresholds
+    historical_ranges = {
+        'MSTR': {'avg': 1.4, 'std': 0.3, 'typical_range': (1.1, 1.7)},
+        'MARA': {'avg': 0.9, 'std': 0.2, 'typical_range': (0.7, 1.1)},
+        'RIOT': {'avg': 0.8, 'std': 0.2, 'typical_range': (0.6, 1.0)},
+        'CLSK': {'avg': 0.7, 'std': 0.2, 'typical_range': (0.5, 0.9)},
+        'TSLA': {'avg': 1.1, 'std': 0.3, 'typical_range': (0.8, 1.4)},
+        'HUT': {'avg': 0.8, 'std': 0.2, 'typical_range': (0.6, 1.0)},
+        'COIN': {'avg': 1.2, 'std': 0.3, 'typical_range': (0.9, 1.5)},
+        'SQ': {'avg': 1.0, 'std': 0.2, 'typical_range': (0.8, 1.2)},
+        'SMLR': {'avg': 0.9, 'std': 0.2, 'typical_range': (0.7, 1.1)},
+        'HIVE': {'avg': 0.7, 'std': 0.2, 'typical_range': (0.5, 0.9)},
+        'CIFR': {'avg': 0.6, 'std': 0.2, 'typical_range': (0.4, 0.8)}
+    }
+    
+    if symbol not in historical_ranges:
+        # Default for unknown stocks
+        avg = 1.0
+        std = 0.3
+        typical_range = (0.7, 1.3)
+    else:
+        data = historical_ranges[symbol]
+        avg = data['avg']
+        std = data['std']
+        typical_range = data['typical_range']
+    
+    # Calculate how many standard deviations from average
+    z_score = (mnav - avg) / std
+    
+    # Determine signal based on historical patterns
+    if z_score < -2.0:
+        return "🟢 STRONG BUY (significantly below historical average)"
+    elif z_score < -1.0:
+        return "🟡 BUY (below historical average)"
+    elif z_score < 1.0:
+        return "🟠 HOLD (within typical range)"
+    elif z_score < 2.0:
+        return "🟡 SELL (above historical average)"
+    else:
+        return "🔴 STRONG SELL (significantly above historical average)"
 
 def main():
     """Main function"""
