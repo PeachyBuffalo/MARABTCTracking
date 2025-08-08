@@ -1,0 +1,17 @@
+# API Keys for Price Data Providers
+# Copy this file to .env and add your API keys
+
+# Financial Modeling Prep (FMP) - 250 requests/day free
+# https://financialmodelingprep.com/developer/docs/
+FMP_API_KEY=""
+
+# Alpha Vantage - 25 requests/day free  
+# https://www.alphavantage.co/support/#api-key
+ALPHAVANTAGE_API_KEY=""
+
+# Optional: Yahoo Finance (no key needed, but rate limited)
+# Used as last resort if other providers fail
+
+# Cache settings
+CACHE_TTL_SECONDS=30
+FORCE_FRESH_DATA=false

@@ -8,10 +8,23 @@ import os
 
 def check_dependencies():
     """Check if required dependencies are installed"""
-    required_packages = ['tkinter', 'requests', 'yfinance', 'pandas', 'numpy']
+    # Built-in packages that don't need pip installation
+    builtin_packages = ['tkinter']
+    
+    # External packages that need pip installation
+    external_packages = ['requests', 'yfinance', 'pandas', 'numpy']
+    
     missing_packages = []
     
-    for package in required_packages:
+    # Check built-in packages
+    for package in builtin_packages:
+        try:
+            __import__(package)
+        except ImportError:
+            missing_packages.append(package)
+    
+    # Check external packages
+    for package in external_packages:
         try:
             __import__(package)
         except ImportError:
@@ -34,17 +47,30 @@ def main():
     if not check_dependencies():
         sys.exit(1)
     
-    # Check if GUI file exists
-    if not os.path.exists('bitcoin_analysis_gui.py'):
-        print("❌ GUI file not found: bitcoin_analysis_gui.py")
-        sys.exit(1)
+    # Try simple GUI first (faster loading)
+    if os.path.exists('simple_gui.py'):
+        print("📱 Using Simple GUI (fast loading)")
+        try:
+            import simple_gui
+            simple_gui.main()
+            return
+        except Exception as e:
+            print(f"⚠️ Simple GUI failed: {e}")
+            print("🔄 Falling back to full GUI...")
     
-    # Launch GUI
-    try:
-        import bitcoin_analysis_gui
-        bitcoin_analysis_gui.main()
-    except Exception as e:
-        print(f"❌ Error launching GUI: {e}")
+    # Fall back to full GUI
+    if os.path.exists('bitcoin_analysis_gui.py'):
+        print("🖥️ Using Full GUI")
+        try:
+            import bitcoin_analysis_gui
+            bitcoin_analysis_gui.main()
+        except Exception as e:
+            print(f"❌ Error launching GUI: {e}")
+            import traceback
+            traceback.print_exc()
+            sys.exit(1)
+    else:
+        print("❌ No GUI files found")
         sys.exit(1)
 
 if __name__ == "__main__":

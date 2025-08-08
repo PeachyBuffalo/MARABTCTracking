@@ -5,4 +5,5 @@ numpy
 matplotlib
 yfinance
 python-dotenv
-beautifulsoup4 
+beautifulsoup4
+Pillow 
