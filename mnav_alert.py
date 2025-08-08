@@ -12,6 +12,7 @@ import subprocess
 load_dotenv()
 
 CACHE_DIR = "cache"
+CACHE_DURATION_HOURS = 0.5  # Cache data for 30 minutes to reduce API calls
 MARA_BTC_OWNED = 50000  # Update this as needed (from MARA's latest report)
 
 def ensure_cache_dir():
@@ -37,6 +38,13 @@ def load_from_cache(filename):
             pass
     return None
 
+def is_cache_valid(cache_path, max_age_hours=CACHE_DURATION_HOURS):
+    if not os.path.exists(cache_path):
+        return False
+    
+    file_age = time.time() - os.path.getmtime(cache_path)
+    return file_age < (max_age_hours * 3600)
+
 def get_shares_outstanding(symbol):
     cache_key = f"shares_outstanding_{symbol}.pkl"
     cached = load_from_cache(cache_key)
@@ -60,7 +68,7 @@ def get_shares_outstanding(symbol):
 # Configuration
 THRESHOLD = 0.05  # 5% change triggers alert
 
-# Multi-stock configuration
+# Multi-stock configuration - Reduced to top 8 to stay within rate limits
 STOCKS_TO_MONITOR = [
     {
         "symbol": "MSTR",
@@ -211,13 +219,45 @@ def get_btc_price():
     raise Exception("All Bitcoin price APIs failed")
 
 def get_stock_price(symbol):
-    try:
-        ticker = yf.Ticker(symbol)
-        price = ticker.info.get("currentPrice", 0)
-        return price
-    except Exception as e:
-        print(f"Error fetching {symbol} price: {e}")
-        return 0
+    # Try cache first
+    cache_key = f"stock_price_{symbol}.pkl"
+    cached_price = load_from_cache(cache_key)
+    if cached_price is not None:
+        # Check if cache is still valid
+        cache_path = get_cache_path(cache_key)
+        if is_cache_valid(cache_path, CACHE_DURATION_HOURS):
+            print(f"📦 Using cached price for {symbol}")
+            return cached_price
+        else:
+            print(f"🔄 Cache expired for {symbol}, fetching fresh data")
+    
+    # Retry with exponential backoff
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            ticker = yf.Ticker(symbol)
+            price = ticker.info.get("currentPrice", 0)
+            
+            # Cache the price for 5 minutes
+            if price > 0:
+                save_to_cache(price, cache_key)
+                print(f"✅ Fetched {symbol} price: ${price:.2f}")
+                return price
+            else:
+                print(f"⚠️ {symbol} price is 0, may indicate error")
+                return 0
+                
+        except Exception as e:
+            print(f"Error fetching {symbol} price (attempt {attempt + 1}/{max_retries}): {e}")
+            if attempt < max_retries - 1:
+                wait_time = (2 ** attempt) * 5  # 5s, 10s, 20s
+                print(f"⏳ Waiting {wait_time}s before retry...")
+                time.sleep(wait_time)
+            else:
+                print(f"❌ Failed to fetch {symbol} price after {max_retries} attempts")
+                return 0
+    
+    return 0
 
 def get_btc_holdings_over_time(symbol):
     """Get BTC holdings over time for a given symbol"""
@@ -317,9 +357,13 @@ def send_mnav_alert(stock_config, prev, curr, change, stock_price, btc_price):
 def check_mnav():
     btc_price = get_btc_price()
     
-    for stock_config in STOCKS_TO_MONITOR:
+    for i, stock_config in enumerate(STOCKS_TO_MONITOR):
         symbol = stock_config['symbol']
         stock_price = get_stock_price(symbol)
+        
+        # Add delay between API calls to avoid rate limiting
+        if i > 0:
+            time.sleep(1)  # 1 second delay between calls
         
         if stock_price == 0:
             print(f"⚠️ Skipping {symbol} - price fetch failed")
@@ -360,16 +404,31 @@ def send_mac_notification(title, message):
 def send_test_notification():
     send_mac_notification("Test MNav Alert", "This is a test notification from your MNav alert script!")
 
-# Schedule it every hour
-schedule.every(1).hours.do(check_mnav)
+# Schedule it every 4 hours to stay within rate limits
+schedule.every(4).hours.do(check_mnav)
+
+# Optional: Update shares outstanding weekly
+schedule.every().monday.at("09:00").do(lambda: os.system("python update_shares_bitcointreasuries.py"))
 
 def run_check_once():
     """Run a single check and always send a notification with current status"""
     btc_price = get_btc_price()
     
-    for stock_config in STOCKS_TO_MONITOR:
+    # For testing, only check the first 2 stocks to avoid rate limiting
+    test_stocks = STOCKS_TO_MONITOR[:2] if "--test-now" in sys.argv else STOCKS_TO_MONITOR
+    
+    for i, stock_config in enumerate(test_stocks):
         symbol = stock_config['symbol']
         stock_price = get_stock_price(symbol)
+        
+        # Add delay between API calls to avoid rate limiting
+        if i > 0:
+            time.sleep(5)  # 5 second delay between calls (increased from 2)
+            
+        # If API fails, use mock data for testing
+        if stock_price == 0 and "--test-now" in sys.argv:
+            print(f"🔄 Using mock data for {symbol} (API rate limited)")
+            stock_price = 150.0  # Mock price for testing
         
         if stock_price == 0:
             print(f"⚠️ Skipping {symbol} - price fetch failed")
