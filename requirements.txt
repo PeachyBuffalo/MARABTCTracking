@@ -4,4 +4,5 @@ pandas
 numpy
 matplotlib
 yfinance
-python-dotenv 
+python-dotenv
+beautifulsoup4 
