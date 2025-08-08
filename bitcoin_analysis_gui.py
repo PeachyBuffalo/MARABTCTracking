@@ -203,7 +203,8 @@ class BitcoinAnalysisGUI:
                 
                 self.root.after(0, lambda: self.display_results(result.stdout, result.stderr))
             except Exception as e:
-                self.root.after(0, lambda: self.display_results("", f"Error: {e}"))
+                error_msg = str(e)
+                self.root.after(0, lambda: self.display_results("", f"Error: {error_msg}"))
         
         threading.Thread(target=run, daemon=True).start()
 
@@ -240,7 +241,8 @@ class BitcoinAnalysisGUI:
                 
                 self.root.after(0, lambda: self.log_alert(result.stdout, result.stderr))
             except Exception as e:
-                self.root.after(0, lambda: self.log_alert("", f"Error: {e}"))
+                error_msg = str(e)
+                self.root.after(0, lambda: self.log_alert("", f"Error: {error_msg}"))
         
         threading.Thread(target=run, daemon=True).start()
 
@@ -259,7 +261,8 @@ class BitcoinAnalysisGUI:
                 
                 self.root.after(0, lambda: self.log_alert("Alert monitor started successfully", ""))
             except Exception as e:
-                self.root.after(0, lambda: self.log_alert("", f"Error starting alert monitor: {e}"))
+                error_msg = str(e)
+                self.root.after(0, lambda: self.log_alert("", f"Error starting alert monitor: {error_msg}"))
         
         threading.Thread(target=run, daemon=True).start()
 
@@ -273,7 +276,8 @@ class BitcoinAnalysisGUI:
                 self.alert_process.terminate()
                 self.log_alert("Alert monitor stopped", "")
         except Exception as e:
-            self.log_alert("", f"Error stopping alert monitor: {e}")
+            error_msg = str(e)
+            self.log_alert("", f"Error stopping alert monitor: {error_msg}")
 
     def run_backtest(self):
         """Run backtest for selected period"""
@@ -287,7 +291,8 @@ class BitcoinAnalysisGUI:
                 
                 self.root.after(0, lambda: self.display_backtest_results(result.stdout, result.stderr))
             except Exception as e:
-                self.root.after(0, lambda: self.display_backtest_results("", f"Error: {e}"))
+                error_msg = str(e)
+                self.root.after(0, lambda: self.display_backtest_results("", f"Error: {error_msg}"))
         
         threading.Thread(target=run, daemon=True).start()
 
@@ -316,7 +321,8 @@ class BitcoinAnalysisGUI:
                 
                 self.root.after(0, lambda: self.log_alert(result.stdout, result.stderr))
             except Exception as e:
-                self.root.after(0, lambda: self.log_alert("", f"Error: {e}"))
+                error_msg = str(e)
+                self.root.after(0, lambda: self.log_alert("", f"Error: {error_msg}"))
         
         threading.Thread(target=run, daemon=True).start()
 
