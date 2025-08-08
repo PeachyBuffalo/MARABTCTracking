@@ -67,6 +67,36 @@ python launch_gui.py
 
 ### 💻 **For Technical Users**
 
+### 🔧 **Troubleshooting**
+
+**If you get tkinter errors:**
+- Use `python run_gui.py` - it automatically finds the right Python installation
+- Or deactivate virtual environment: `deactivate` then run `python simple_gui.py`
+- Or install tkinter: `brew install python-tk` (macOS) or `sudo apt-get install python3-tk` (Linux)
+
+**If GUI is slow to load:**
+- Use `python simple_gui.py` for faster loading
+- The simple GUI has all essential features with instant startup
+
+**If you get rate limiting errors:**
+- The system now uses multiple price providers with automatic fallback
+- Set up API keys for better reliability:
+  ```bash
+  # Run the setup script
+  python setup_api_keys.py
+  
+  # Get free API keys from:
+  # - FMP: https://financialmodelingprep.com/developer/docs/
+  # - Alpha Vantage: https://www.alphavantage.co/support/#api-key
+  
+  # Edit .env file with your keys
+  # Load environment variables
+  source .env
+  
+  # Test the system
+  python test_providers.py
+  ```
+
 1. **Clone the repository**
    ```bash
    git clone https://github.com/PeachyBuffalo/MARABTCTracking.git
@@ -101,14 +131,16 @@ python launch_gui.py
 
 ### 🖥️ **GUI Interface (Recommended for Non-Technical Users)**
 
-**Launch the user-friendly GUI:**
+**Launch the user-friendly GUI (recommended):**
 ```bash
-python launch_gui.py
+python run_gui.py         # Smart launcher (handles Python environment issues)
+python launch_gui.py      # Standard launcher
 ```
 
-**Or directly:**
+**Or launch specific versions:**
 ```bash
-python bitcoin_analysis_gui.py
+python simple_gui.py      # Fast loading simple GUI
+python bitcoin_analysis_gui.py  # Full featured GUI
 ```
 
 The GUI provides:
