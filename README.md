@@ -45,6 +45,28 @@ The system monitors multiple Bitcoin-holding stocks simultaneously:
 - **Cipher Mining (CIFR)** - 1,063 BTC
 
 ## Setup
+
+### 🖥️ **For Non-Technical Users (Recommended)**
+
+**Quick Start:**
+```bash
+# 1. Clone the repository
+git clone https://github.com/PeachyBuffalo/MARABTCTracking.git
+cd MARABTCTracking
+
+# 2. Run the automatic installer
+python install.py
+
+# 3. Launch the GUI
+python launch_gui.py
+```
+
+**Alternative launchers:**
+- **Windows**: Double-click `launch_gui.bat`
+- **macOS/Linux**: Double-click `launch_gui.sh` or run `./launch_gui.sh`
+
+### 💻 **For Technical Users**
+
 1. **Clone the repository**
    ```bash
    git clone https://github.com/PeachyBuffalo/MARABTCTracking.git
@@ -77,7 +99,28 @@ The system monitors multiple Bitcoin-holding stocks simultaneously:
 
 ## Usage
 
-### Live Multi-Stock MNav Monitoring
+### 🖥️ **GUI Interface (Recommended for Non-Technical Users)**
+
+**Launch the user-friendly GUI:**
+```bash
+python launch_gui.py
+```
+
+**Or directly:**
+```bash
+python bitcoin_analysis_gui.py
+```
+
+The GUI provides:
+- **📊 Analysis Tab**: Analyze individual stocks or all stocks at once
+- **🔔 Alerts Tab**: Test alerts, start/stop monitoring, view alert logs
+- **📈 Backtest Tab**: Run backtests for different time periods
+- **⚙️ Settings Tab**: Update data, clear cache, view system info
+- **📋 Logs Tab**: View and export application logs
+
+### 💻 **Command Line Interface**
+
+#### Live Multi-Stock MNav Monitoring
 Start monitoring all Bitcoin-holding stocks:
 ```bash
 python mnav_alert.py
@@ -97,7 +140,7 @@ python mnav_alert.py --send-test-notification
 - Monitors all configured stocks simultaneously
 - Each stock has its own threshold (default: 5% change)
 
-### Backtesting Individual Stocks
+#### Backtesting Individual Stocks
 Run backtest for a specific stock:
 ```bash
 python mnav_backtest.py MSTR    # MicroStrategy
