@@ -44,11 +44,17 @@ The system monitors multiple Bitcoin-holding stocks simultaneously:
 - **HIVE Digital (HIVE)** - 2,201 BTC
 - **Cipher Mining (CIFR)** - 1,063 BTC
 
-## Setup
+## 🚀 Quick Start
 
-### 🖥️ **For Non-Technical Users (Recommended)**
+### **Option 1: One-Click Demo (Fastest)**
+```bash
+# Clone and run demo
+git clone https://github.com/PeachyBuffalo/MARABTCTracking.git
+cd MARABTCTracking
+python demo.py
+```
 
-**Quick Start:**
+### **Option 2: Full Installation**
 ```bash
 # 1. Clone the repository
 git clone https://github.com/PeachyBuffalo/MARABTCTracking.git
@@ -60,6 +66,15 @@ python install.py
 # 3. Launch the GUI
 python launch_gui.py
 ```
+
+### **Option 3: Docker (No Setup Required)**
+```bash
+# Run with Docker
+docker-compose up demo
+```
+
+### **Option 4: Try Online**
+🌐 **[View Live Demo](https://peachybuffalo.github.io/MARABTCTracking/)** - Interactive web interface
 
 **Alternative launchers:**
 - **Windows**: Double-click `launch_gui.bat`

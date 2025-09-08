@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  bitcoin-tracker:
+    build: .
+    container_name: bitcoin-mnav-tracker
+    volumes:
+      - ./cache:/app/cache
+      - ./outputs:/app/outputs
+    environment:
+      - PYTHONPATH=/app
+      - CI=true
+    ports:
+      - "8000:8000"
+    command: python launch_gui.py
+    
+  demo:
+    build: .
+    container_name: bitcoin-tracker-demo
+    volumes:
+      - ./cache:/app/cache
+    environment:
+      - PYTHONPATH=/app
+      - CI=true
+    command: python demo.py
