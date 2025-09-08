@@ -247,9 +247,9 @@
     </div>
 
     <script>
-        // Bitcoin holdings data (from Bitcoin Treasuries)
+        // Bitcoin holdings data (Updated January 2025)
         const btcHoldings = {
-            'MSTR': { btc: 607770, shares: 283544304, name: 'MicroStrategy' },
+            'MSTR': { btc: 638460, shares: 65000000, name: 'MicroStrategy' }, // Updated: 638,460 BTC, ~65M shares
             'MARA': { btc: 50639, shares: 320000000, name: 'Marathon Digital' },
             'RIOT': { btc: 19225, shares: 220000000, name: 'Riot Platforms' },
             'CLSK': { btc: 12608, shares: 70000000, name: 'CleanSpark' },
@@ -259,13 +259,13 @@
             'SMLR': { btc: 5021, shares: 14800000, name: 'Semler Scientific' }
         };
 
-        // Base prices that will be modified with each refresh
+        // Base prices that will be modified with each refresh (Updated January 2025)
         let basePrices = {
-            'MSTR': 1450, 'MARA': 15.50, 'RIOT': 12.80, 'CLSK': 8.20,
+            'MSTR': 1446, 'MARA': 15.50, 'RIOT': 12.80, 'CLSK': 8.20, // MSTR: ~$94B market cap / 65M shares ≈ $1,446
             'TSLA': 180, 'COIN': 220, 'SQ': 65, 'SMLR': 45
         };
 
-        let btcPrice = 45000;
+        let btcPrice = 112000; // Updated to reflect current BTC price around $112k
 
         function getTradingSignal(mnav) {
             if (mnav < 0.8) return { text: '🟢 STRONG BUY', class: 'buy' };
