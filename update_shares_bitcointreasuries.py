@@ -199,7 +199,7 @@ def update_analyze_stock_with_bitcoin_treasuries():
     }"""
     
     # Find and replace the current defaults
-    old_pattern = r'# Default configurations - Manually verified shares outstanding\s+defaults = \{[\s\S]*?\}'
+    old_pattern = r'# Default configurations - Updated with Bitcoin Treasuries data\s+defaults = \{[\s\S]*?\}'
     
     import re
     updated_content = re.sub(old_pattern, new_defaults, content)

@@ -25,6 +25,7 @@ local_data/
 *.json
 
 # Analysis outputs and reports
+outputs/
 *_analysis_*.png
 *_analysis_*.json
 pattern_analysis_*.json
