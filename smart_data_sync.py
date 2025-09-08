@@ -128,7 +128,7 @@ class SmartDataSync:
         # This would read from the current data in mnav_backtest.py
         # For now, return a placeholder
         default_shares = {
-            'MSTR': 283544304,
+            'MSTR': 307000000,
             'MARA': 351928000,
             'RIOT': 351928000,
             'CLSK': 351928000,
@@ -146,7 +146,7 @@ class SmartDataSync:
         """Get current BTC holdings from our data"""
         # This would read from the current data in mnav_backtest.py
         default_btc = {
-            'MSTR': 607770,
+            'MSTR': 638460,
             'MARA': 50000,
             'RIOT': 19225,
             'CLSK': 12608,

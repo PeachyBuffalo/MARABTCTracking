@@ -48,7 +48,7 @@ force_real_data = False
 def get_stock_config():
     """Get stock configuration based on symbol"""
     stock_configs = {
-        'MSTR': {'name': 'MicroStrategy', 'btc_owned': 607770},
+        'MSTR': {'name': 'MicroStrategy', 'btc_owned': 638460},
         'MARA': {'name': 'Marathon Digital', 'btc_owned': 50000},
         'RIOT': {'name': 'Riot Platforms', 'btc_owned': 19225},
         'CLSK': {'name': 'CleanSpark', 'btc_owned': 12608},
@@ -418,7 +418,7 @@ def get_btc_holdings_over_time(symbol):
             {'date': '2024-10-31', 'btc_owned': 245000},
             {'date': '2024-12-30', 'btc_owned': 301000},
             {'date': '2025-01-31', 'btc_owned': 301000},
-            {'date': '2025-03-19', 'btc_owned': 607770},  # Latest amount
+            {'date': '2025-03-19', 'btc_owned': 638460},  # Latest amount
         ],
         # Add other companies as needed
     }
@@ -497,44 +497,44 @@ def get_shares_outstanding_over_time(symbol):
             {'date': '2025-04-01', 'shares': 14800000},  # Current amount
         ],
         'MSTR': [
-            {'date': '2020-08-11', 'shares': 283544304},  # Initial amount
-            {'date': '2020-09-14', 'shares': 283544304},  # No change
-            {'date': '2020-12-21', 'shares': 283544304},  # No change
-            {'date': '2021-02-24', 'shares': 283544304},  # No change
-            {'date': '2021-06-21', 'shares': 283544304},  # No change
-            {'date': '2021-07-28', 'shares': 283544304},  # No change
-            {'date': '2021-08-24', 'shares': 283544304},  # No change
-            {'date': '2021-09-13', 'shares': 283544304},  # No change
-            {'date': '2021-10-01', 'shares': 283544304},  # No change
-            {'date': '2021-11-29', 'shares': 283544304},  # No change
-            {'date': '2021-12-30', 'shares': 283544304},  # No change
-            {'date': '2022-01-31', 'shares': 283544304},  # No change
-            {'date': '2022-02-15', 'shares': 283544304},  # No change
-            {'date': '2022-03-31', 'shares': 283544304},  # No change
-            {'date': '2022-04-04', 'shares': 283544304},  # No change
-            {'date': '2022-06-28', 'shares': 283544304},  # No change
-            {'date': '2022-08-02', 'shares': 283544304},  # No change
-            {'date': '2022-09-09', 'shares': 283544304},  # No change
-            {'date': '2022-10-27', 'shares': 283544304},  # No change
-            {'date': '2022-12-27', 'shares': 283544304},  # No change
-            {'date': '2023-01-31', 'shares': 283544304},  # No change
-            {'date': '2023-03-23', 'shares': 283544304},  # No change
-            {'date': '2023-04-05', 'shares': 283544304},  # No change
-            {'date': '2023-06-27', 'shares': 283544304},  # No change
-            {'date': '2023-07-31', 'shares': 283544304},  # No change
-            {'date': '2023-09-11', 'shares': 283544304},  # No change
-            {'date': '2023-10-31', 'shares': 283544304},  # No change
-            {'date': '2023-12-26', 'shares': 283544304},  # No change
-            {'date': '2024-01-31', 'shares': 283544304},  # No change
-            {'date': '2024-03-19', 'shares': 283544304},  # No change
-            {'date': '2024-04-30', 'shares': 283544304},  # No change
-            {'date': '2024-06-20', 'shares': 283544304},  # No change
-            {'date': '2024-07-31', 'shares': 283544304},  # No change
-            {'date': '2024-09-16', 'shares': 283544304},  # No change
-            {'date': '2024-10-31', 'shares': 283544304},  # No change
-            {'date': '2024-12-30', 'shares': 283544304},  # No change
-            {'date': '2025-01-31', 'shares': 283544304},  # No change
-            {'date': '2025-03-19', 'shares': 283544304},  # Current amount
+            {'date': '2020-08-11', 'shares': 307000000},  # Initial amount
+            {'date': '2020-09-14', 'shares': 307000000},  # No change
+            {'date': '2020-12-21', 'shares': 307000000},  # No change
+            {'date': '2021-02-24', 'shares': 307000000},  # No change
+            {'date': '2021-06-21', 'shares': 307000000},  # No change
+            {'date': '2021-07-28', 'shares': 307000000},  # No change
+            {'date': '2021-08-24', 'shares': 307000000},  # No change
+            {'date': '2021-09-13', 'shares': 307000000},  # No change
+            {'date': '2021-10-01', 'shares': 307000000},  # No change
+            {'date': '2021-11-29', 'shares': 307000000},  # No change
+            {'date': '2021-12-30', 'shares': 307000000},  # No change
+            {'date': '2022-01-31', 'shares': 307000000},  # No change
+            {'date': '2022-02-15', 'shares': 307000000},  # No change
+            {'date': '2022-03-31', 'shares': 307000000},  # No change
+            {'date': '2022-04-04', 'shares': 307000000},  # No change
+            {'date': '2022-06-28', 'shares': 307000000},  # No change
+            {'date': '2022-08-02', 'shares': 307000000},  # No change
+            {'date': '2022-09-09', 'shares': 307000000},  # No change
+            {'date': '2022-10-27', 'shares': 307000000},  # No change
+            {'date': '2022-12-27', 'shares': 307000000},  # No change
+            {'date': '2023-01-31', 'shares': 307000000},  # No change
+            {'date': '2023-03-23', 'shares': 307000000},  # No change
+            {'date': '2023-04-05', 'shares': 307000000},  # No change
+            {'date': '2023-06-27', 'shares': 307000000},  # No change
+            {'date': '2023-07-31', 'shares': 307000000},  # No change
+            {'date': '2023-09-11', 'shares': 307000000},  # No change
+            {'date': '2023-10-31', 'shares': 307000000},  # No change
+            {'date': '2023-12-26', 'shares': 307000000},  # No change
+            {'date': '2024-01-31', 'shares': 307000000},  # No change
+            {'date': '2024-03-19', 'shares': 307000000},  # No change
+            {'date': '2024-04-30', 'shares': 307000000},  # No change
+            {'date': '2024-06-20', 'shares': 307000000},  # No change
+            {'date': '2024-07-31', 'shares': 307000000},  # No change
+            {'date': '2024-09-16', 'shares': 307000000},  # No change
+            {'date': '2024-10-31', 'shares': 307000000},  # No change
+            {'date': '2024-12-30', 'shares': 307000000},  # No change
+            {'date': '2025-01-31', 'shares': 307000000},  # No change
+            {'date': '2025-03-19', 'shares': 307000000},  # Current amount
         ],
         # Add other companies as needed
     }
@@ -557,7 +557,7 @@ def get_default_shares_outstanding():
     """Default shares outstanding for companies without historical data"""
     # Updated shares outstanding values based on recent filings
     default_shares = {
-        'MSTR': 283544304,  # Updated from current market cap and share price
+        'MSTR': 307000000,  # Updated from current market cap and share price
         'MARA': 351928000,  # Placeholder - needs verification
         'RIOT': 351928000,  # Placeholder - needs verification
         'CLSK': 351928000,  # Placeholder - needs verification

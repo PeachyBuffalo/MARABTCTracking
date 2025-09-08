@@ -16,9 +16,9 @@ def analyze_mstr_from_image():
     name = "MicroStrategy"
     current_price = 395
     market_cap = 112000000000  # $112B
-    btc_owned = 607770
-    btc_price = 117464  # Current BTC price
-    shares_outstanding = 283544304  # Calculated from market cap and price
+    btc_owned = 638460
+    btc_price = 112000  # Current BTC price
+    shares_outstanding = 307000000  # Updated to current shares outstanding
     
     print(f"\n📊 {name} ({symbol}) Analysis")
     print(f"Current Price: ${current_price:,.2f}")

@@ -189,7 +189,7 @@ def get_estimated_price(symbol):
     # Fallback to estimated prices based on recent market data
     estimated_prices = {
         'MARA': 15.50,  # Recent approximate price
-        'MSTR': 1450.00,
+        'MSTR': 327.00,
         'RIOT': 12.80,
         'CLSK': 8.20,
         'TSLA': 180.00,

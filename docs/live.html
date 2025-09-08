@@ -335,10 +335,10 @@
                 
                 // If all APIs fail, use a realistic current price
                 console.log('All APIs failed, using fallback price');
-                return 45000;
+                return 112000;
             } catch (error) {
                 console.error('Error fetching BTC price:', error);
-                return 45000;
+                return 112000;
             }
         }
 
@@ -380,14 +380,14 @@
                 // Fallback to realistic prices
                 console.log(`All stock APIs failed for ${symbol}, using fallback`);
                 const fallbackPrices = {
-                    'MSTR': 1450, 'MARA': 15.50, 'RIOT': 12.80, 'CLSK': 8.20,
+                    'MSTR': 327, 'MARA': 15.50, 'RIOT': 12.80, 'CLSK': 8.20,
                     'TSLA': 180, 'COIN': 220, 'SQ': 65, 'SMLR': 45
                 };
                 return fallbackPrices[symbol] || 100;
             } catch (error) {
                 console.error(`Error fetching ${symbol} price:`, error);
                 const fallbackPrices = {
-                    'MSTR': 1450, 'MARA': 15.50, 'RIOT': 12.80, 'CLSK': 8.20,
+                    'MSTR': 327, 'MARA': 15.50, 'RIOT': 12.80, 'CLSK': 8.20,
                     'TSLA': 180, 'COIN': 220, 'SQ': 65, 'SMLR': 45
                 };
                 return fallbackPrices[symbol] || 100;
@@ -448,9 +448,9 @@
                 showError('Failed to fetch live data: ' + error.message + '. Using fallback data...');
                 
                 // Show fallback data even if APIs fail
-                const fallbackBtcPrice = 45000;
+                const fallbackBtcPrice = 112000;
                 const fallbackStockPrices = {
-                    'MSTR': 1450, 'MARA': 15.50, 'RIOT': 12.80, 'CLSK': 8.20,
+                    'MSTR': 327, 'MARA': 15.50, 'RIOT': 12.80, 'CLSK': 8.20,
                     'TSLA': 180, 'COIN': 220, 'SQ': 65, 'SMLR': 45
                 };
                 const stockPrice = fallbackStockPrices[symbol] || 100;

@@ -73,7 +73,7 @@ STOCKS_TO_MONITOR = [
     {
         "symbol": "MSTR",
         "name": "MicroStrategy",
-        "btc_owned": 607770,
+        "btc_owned": 638460,
         "threshold": 0.05
     },
     {
@@ -326,7 +326,7 @@ def get_btc_holdings_over_time(symbol):
             {'date': '2024-10-31', 'btc_owned': 245000},
             {'date': '2024-12-30', 'btc_owned': 301000},
             {'date': '2025-01-31', 'btc_owned': 301000},
-            {'date': '2025-03-19', 'btc_owned': 607770},  # Latest amount
+            {'date': '2025-03-19', 'btc_owned': 638460},  # Latest amount
         ],
         # Add other companies as needed
     }

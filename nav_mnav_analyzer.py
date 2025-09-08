@@ -20,8 +20,8 @@ class NAVMNavAnalyzer:
         self.stock_configs = {
             'MSTR': {
                 'name': 'MicroStrategy',
-                'btc_owned': 607770,
-                'shares_outstanding': 283544304,
+                'btc_owned': 638460,
+                'shares_outstanding': 307000000,
                 'description': 'Enterprise software company with largest corporate BTC holdings'
             },
             'MARA': {
