@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Tracker - Live Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .controls {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .control-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .control-group label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        select, input, button {
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            min-width: 120px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .results {
+            padding: 30px;
+            display: none;
+        }
+        
+        .stock-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.2s;
+        }
+        
+        .stock-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .stock-symbol {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .stock-name {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .metric {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+        
+        .metric-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .metric-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .signal {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .signal.buy {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .signal.sell {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .signal.hold {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #bee5eb;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        @media (max-width: 768px) {
+            .control-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .stock-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>₿ Bitcoin Tracker</h1>
+            <p>Live MNav Analysis for Bitcoin-Holding Stocks</p>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="stockSelect">Select Stock:</label>
+                <select id="stockSelect">
+                    <option value="MSTR">MSTR - MicroStrategy</option>
+                    <option value="MARA">MARA - Marathon Digital</option>
+                    <option value="RIOT">RIOT - Riot Platforms</option>
+                    <option value="CLSK">CLSK - CleanSpark</option>
+                    <option value="TSLA">TSLA - Tesla</option>
+                    <option value="COIN">COIN - Coinbase</option>
+                    <option value="SQ">SQ - Block Inc</option>
+                    <option value="SMLR">SMLR - Semler Scientific</option>
+                </select>
+                
+                <button id="analyzeBtn" onclick="analyzeStock()">Analyze Stock</button>
+                <button id="refreshBtn" onclick="refreshData()">Refresh All</button>
+            </div>
+            
+            <div class="info">
+                <strong>ℹ️ Note:</strong> This is a demo version. Real-time data requires API keys and server-side processing. 
+                The analysis shown uses sample data to demonstrate the functionality.
+            </div>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Fetching data and analyzing...</p>
+        </div>
+        
+        <div class="results" id="results">
+            <!-- Results will be populated here -->
+        </div>
+        
+        <div class="footer">
+            <p>Powered by <strong>Bitcoin Tracker</strong> | 
+            <a href="https://github.com/PeachyBuffalo/MARABTCTracking" style="color: #667eea;">View Source Code</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for demonstration
+        const stockData = {
+            'MSTR': {
+                name: 'MicroStrategy',
+                btc: 607770,
+                shares: 283544304,
+                currentPrice: 1450.00,
+                btcPrice: 45000.00
+            },
+            'MARA': {
+                name: 'Marathon Digital',
+                btc: 50639,
+                shares: 320000000,
+                currentPrice: 15.50,
+                btcPrice: 45000.00
+            },
+            'RIOT': {
+                name: 'Riot Platforms',
+                btc: 19225,
+                shares: 220000000,
+                currentPrice: 12.80,
+                btcPrice: 45000.00
+            },
+            'CLSK': {
+                name: 'CleanSpark',
+                btc: 12608,
+                shares: 70000000,
+                currentPrice: 8.20,
+                btcPrice: 45000.00
+            },
+            'TSLA': {
+                name: 'Tesla',
+                btc: 11509,
+                shares: 3200000000,
+                currentPrice: 180.00,
+                btcPrice: 45000.00
+            },
+            'COIN': {
+                name: 'Coinbase',
+                btc: 9267,
+                shares: 220000000,
+                currentPrice: 220.00,
+                btcPrice: 45000.00
+            },
+            'SQ': {
+                name: 'Block Inc',
+                btc: 8584,
+                shares: 650000000,
+                currentPrice: 65.00,
+                btcPrice: 45000.00
+            },
+            'SMLR': {
+                name: 'Semler Scientific',
+                btc: 5021,
+                shares: 14800000,
+                currentPrice: 45.00,
+                btcPrice: 45000.00
+            }
+        };
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('analyzeBtn').disabled = true;
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('analyzeBtn').disabled = false;
+        }
+
+        function getTradingSignal(mnav) {
+            if (mnav < 0.8) return { text: '🟢 STRONG BUY', class: 'buy' };
+            if (mnav < 0.95) return { text: '🟡 BUY', class: 'buy' };
+            if (mnav < 1.05) return { text: '🟠 HOLD', class: 'hold' };
+            if (mnav < 1.2) return { text: '🟡 SELL', class: 'sell' };
+            return { text: '🔴 STRONG SELL', class: 'sell' };
+        }
+
+        function analyzeStock() {
+            const symbol = document.getElementById('stockSelect').value;
+            const data = stockData[symbol];
+            
+            if (!data) {
+                showError('Stock data not found');
+                return;
+            }
+
+            showLoading();
+
+            // Simulate API delay
+            setTimeout(() => {
+                try {
+                    // Calculate metrics
+                    const totalBtcValue = data.btc * data.btcPrice;
+                    const nav = totalBtcValue / data.shares;
+                    const mnav = data.currentPrice / nav;
+                    const signal = getTradingSignal(mnav);
+
+                    // Display results
+                    displayResults(symbol, data, {
+                        nav: nav,
+                        mnav: mnav,
+                        totalBtcValue: totalBtcValue,
+                        signal: signal
+                    });
+
+                    hideLoading();
+                } catch (error) {
+                    showError('Analysis failed: ' + error.message);
+                    hideLoading();
+                }
+            }, 1500);
+        }
+
+        function displayResults(symbol, data, metrics) {
+            const resultsDiv = document.getElementById('results');
+            
+            resultsDiv.innerHTML = `
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-symbol">${symbol}</div>
+                            <div class="stock-name">${data.name}</div>
+                        </div>
+                        <div class="signal ${metrics.signal.class}">
+                            ${metrics.signal.text}
+                        </div>
+                    </div>
+                    
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="metric-label">Stock Price</div>
+                            <div class="metric-value">$${data.currentPrice.toFixed(2)}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">BTC Holdings</div>
+                            <div class="metric-value">${data.btc.toLocaleString()} BTC</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">BTC Value</div>
+                            <div class="metric-value">$${metrics.totalBtcValue.toLocaleString()}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Shares Outstanding</div>
+                            <div class="metric-value">${data.shares.toLocaleString()}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">NAV</div>
+                            <div class="metric-value">$${metrics.nav.toFixed(4)}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MNav</div>
+                            <div class="metric-value">${metrics.mnav.toFixed(4)}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="info">
+                        <strong>Analysis:</strong> 
+                        ${symbol} is trading ${metrics.mnav > 1 ? 'ABOVE' : 'BELOW'} NAV 
+                        (${metrics.mnav > 1 ? 'premium' : 'discount'} of ${Math.abs((metrics.mnav - 1) * 100).toFixed(1)}%)
+                    </div>
+                </div>
+            `;
+        }
+
+        function refreshData() {
+            // Simulate data refresh
+            showLoading();
+            setTimeout(() => {
+                // Add some randomness to simulate real data changes
+                Object.keys(stockData).forEach(symbol => {
+                    const data = stockData[symbol];
+                    // Simulate price changes (±5%)
+                    const change = (Math.random() - 0.5) * 0.1;
+                    data.currentPrice *= (1 + change);
+                    data.btcPrice *= (1 + (Math.random() - 0.5) * 0.05);
+                });
+                
+                hideLoading();
+                document.getElementById('results').innerHTML = `
+                    <div class="info">
+                        <strong>✅ Data Refreshed!</strong> All stock prices and BTC prices have been updated. 
+                        Click "Analyze Stock" to see the latest analysis.
+                    </div>
+                `;
+            }, 1000);
+        }
+
+        function showError(message) {
+            document.getElementById('results').innerHTML = `
+                <div class="error">
+                    <strong>❌ Error:</strong> ${message}
+                </div>
+            `;
+            document.getElementById('results').style.display = 'block';
+        }
+
+        // Initialize with MARA analysis
+        window.onload = function() {
+            analyzeStock();
+        };
+    </script>
+</body>
+</html>
