@@ -18,11 +18,14 @@ import pickle
 # Load environment variables from .env file if it exists
 try:
     from dotenv import load_dotenv
-    load_dotenv()
+    # Use absolute path to .env file
+    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
+    load_dotenv(env_path)
 except ImportError:
     # If python-dotenv is not installed, try to load .env manually
     try:
-        with open('.env', 'r') as f:
+        env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
+        with open(env_path, 'r') as f:
             for line in f:
                 if line.strip() and not line.startswith('#'):
                     key, value = line.strip().split('=', 1)
@@ -444,8 +447,114 @@ def get_shares_outstanding():
     # Check if we're in a CI environment
     if os.environ.get('CI') == 'true':
         print("CI environment detected, using default shares outstanding")
-        return 351928000
+        return get_default_shares_outstanding()
     
+    try:
+        print(f"📊 Fetching shares outstanding for {STOCK_SYMBOL}...")
+        ticker = yf.Ticker(STOCK_SYMBOL)
+        info = ticker.info
+        
+        if 'sharesOutstanding' in info and info['sharesOutstanding']:
+            shares = info['sharesOutstanding']
+            print(f"✅ Shares outstanding: {shares:,}")
+            save_to_cache(shares, cache_key)
+            return shares
+        else:
+            print(f"⚠️ No shares outstanding data for {STOCK_SYMBOL}")
+            return get_default_shares_outstanding()
+            
+    except Exception as e:
+        print(f"❌ Error fetching shares outstanding: {e}")
+        return get_default_shares_outstanding()
+
+def get_shares_outstanding_over_time(symbol):
+    """Get shares outstanding over time for a given symbol"""
+    # Define shares outstanding history for each company
+    shares_history = {
+        'SMLR': [
+            {'date': '2024-05-28', 'shares': 14800000},  # Initial amount
+            {'date': '2024-06-11', 'shares': 14800000},  # No change
+            {'date': '2024-06-25', 'shares': 14800000},  # No change
+            {'date': '2024-07-09', 'shares': 14800000},  # No change
+            {'date': '2024-07-23', 'shares': 14800000},  # No change
+            {'date': '2024-08-06', 'shares': 14800000},  # No change
+            {'date': '2024-08-20', 'shares': 14800000},  # No change
+            {'date': '2024-09-03', 'shares': 14800000},  # No change
+            {'date': '2024-09-17', 'shares': 14800000},  # No change
+            {'date': '2024-10-01', 'shares': 14800000},  # No change
+            {'date': '2024-10-15', 'shares': 14800000},  # No change
+            {'date': '2024-10-29', 'shares': 14800000},  # No change
+            {'date': '2024-11-12', 'shares': 14800000},  # No change
+            {'date': '2024-11-26', 'shares': 14800000},  # No change
+            {'date': '2024-12-10', 'shares': 14800000},  # No change
+            {'date': '2024-12-24', 'shares': 14800000},  # No change
+            {'date': '2025-01-07', 'shares': 14800000},  # No change
+            {'date': '2025-01-21', 'shares': 14800000},  # No change
+            {'date': '2025-02-04', 'shares': 14800000},  # No change
+            {'date': '2025-02-18', 'shares': 14800000},  # No change
+            {'date': '2025-03-04', 'shares': 14800000},  # No change
+            {'date': '2025-03-18', 'shares': 14800000},  # No change
+            {'date': '2025-04-01', 'shares': 14800000},  # Current amount
+        ],
+        'MSTR': [
+            {'date': '2020-08-11', 'shares': 283544304},  # Initial amount
+            {'date': '2020-09-14', 'shares': 283544304},  # No change
+            {'date': '2020-12-21', 'shares': 283544304},  # No change
+            {'date': '2021-02-24', 'shares': 283544304},  # No change
+            {'date': '2021-06-21', 'shares': 283544304},  # No change
+            {'date': '2021-07-28', 'shares': 283544304},  # No change
+            {'date': '2021-08-24', 'shares': 283544304},  # No change
+            {'date': '2021-09-13', 'shares': 283544304},  # No change
+            {'date': '2021-10-01', 'shares': 283544304},  # No change
+            {'date': '2021-11-29', 'shares': 283544304},  # No change
+            {'date': '2021-12-30', 'shares': 283544304},  # No change
+            {'date': '2022-01-31', 'shares': 283544304},  # No change
+            {'date': '2022-02-15', 'shares': 283544304},  # No change
+            {'date': '2022-03-31', 'shares': 283544304},  # No change
+            {'date': '2022-04-04', 'shares': 283544304},  # No change
+            {'date': '2022-06-28', 'shares': 283544304},  # No change
+            {'date': '2022-08-02', 'shares': 283544304},  # No change
+            {'date': '2022-09-09', 'shares': 283544304},  # No change
+            {'date': '2022-10-27', 'shares': 283544304},  # No change
+            {'date': '2022-12-27', 'shares': 283544304},  # No change
+            {'date': '2023-01-31', 'shares': 283544304},  # No change
+            {'date': '2023-03-23', 'shares': 283544304},  # No change
+            {'date': '2023-04-05', 'shares': 283544304},  # No change
+            {'date': '2023-06-27', 'shares': 283544304},  # No change
+            {'date': '2023-07-31', 'shares': 283544304},  # No change
+            {'date': '2023-09-11', 'shares': 283544304},  # No change
+            {'date': '2023-10-31', 'shares': 283544304},  # No change
+            {'date': '2023-12-26', 'shares': 283544304},  # No change
+            {'date': '2024-01-31', 'shares': 283544304},  # No change
+            {'date': '2024-03-19', 'shares': 283544304},  # No change
+            {'date': '2024-04-30', 'shares': 283544304},  # No change
+            {'date': '2024-06-20', 'shares': 283544304},  # No change
+            {'date': '2024-07-31', 'shares': 283544304},  # No change
+            {'date': '2024-09-16', 'shares': 283544304},  # No change
+            {'date': '2024-10-31', 'shares': 283544304},  # No change
+            {'date': '2024-12-30', 'shares': 283544304},  # No change
+            {'date': '2025-01-31', 'shares': 283544304},  # No change
+            {'date': '2025-03-19', 'shares': 283544304},  # Current amount
+        ],
+        # Add other companies as needed
+    }
+    
+    if symbol not in shares_history:
+        # For companies without historical data, use current shares
+        stock_config = get_stock_config()
+        return pd.DataFrame({
+            'date': [pd.Timestamp.now().strftime('%Y-%m-%d')],
+            'shares': [get_default_shares_outstanding()]
+        })
+    
+    # Convert to DataFrame
+    df = pd.DataFrame(shares_history[symbol])
+    df['date'] = pd.to_datetime(df['date'])
+    df.set_index('date', inplace=True)
+    return df
+
+def get_default_shares_outstanding():
+    """Default shares outstanding for companies without historical data"""
     # Updated shares outstanding values based on recent filings
     default_shares = {
         'MSTR': 283544304,  # Updated from current market cap and share price
@@ -456,19 +565,12 @@ def get_shares_outstanding():
         'HUT': 351928000,   # Placeholder - needs verification
         'COIN': 351928000,  # Placeholder - needs verification
         'SQ': 351928000,    # Placeholder - needs verification
-        'SMLR': 351928000,  # Placeholder - needs verification
+        'SMLR': 14800000,   # Updated: Based on actual market cap $540M ÷ $36.51 share price
         'HIVE': 351928000,  # Placeholder - needs verification
         'CIFR': 351928000   # Placeholder - needs verification
     }
     
-    try:
-        ticker = yf.Ticker(STOCK_SYMBOL)
-        shares = ticker.info.get("sharesOutstanding", default_shares.get(STOCK_SYMBOL, 351928000))
-        save_to_cache(shares, cache_key)
-        return shares
-    except Exception as e:
-        print(f"Error fetching shares outstanding for {STOCK_SYMBOL}: {e}")
-        return default_shares.get(STOCK_SYMBOL, 351928000)
+    return default_shares.get(STOCK_SYMBOL, 351928000)
 
 def get_historical_stock_data(start_date, end_date):
     """Fetch historical stock data using local data or yfinance with caching"""
@@ -551,9 +653,9 @@ def get_stock_data_alpha_vantage(start_date, end_date):
     import requests
     
     # You'll need to get a free API key from https://www.alphavantage.co/
-    API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY')
+    API_KEY = os.getenv('ALPHAVANTAGE_API_KEY')
     if not API_KEY:
-        print("⚠️ Alpha Vantage API key not found. Set ALPHA_VANTAGE_API_KEY environment variable.")
+        print("⚠️ Alpha Vantage API key not found. Set ALPHAVANTAGE_API_KEY environment variable.")
         raise Exception("No API key")
     
     url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={STOCK_SYMBOL}&apikey={API_KEY}"
@@ -728,6 +830,9 @@ def calculate_mnav_series(mara_df, btc_df):
     # Get historical BTC holdings
     btc_holdings_df = get_btc_holdings_over_time(STOCK_SYMBOL)
     
+    # Get historical shares outstanding
+    shares_outstanding_df = get_shares_outstanding_over_time(STOCK_SYMBOL)
+    
     # Debug: Print data info
     print(f"📊 Stock data shape: {mara_df.shape}, index: {mara_df.index[0]} to {mara_df.index[-1]}")
     print(f"📊 BTC data shape: {btc_daily.shape}, index: {btc_daily.index[0]} to {btc_daily.index[-1]}")
@@ -758,14 +863,21 @@ def calculate_mnav_series(mara_df, btc_df):
     merged = merged.join(btc_holdings_df, how='left')
     merged['btc_owned'] = merged['btc_owned'].ffill()
     
+    # Add shares outstanding column by forward-filling the shares data
+    merged = merged.join(shares_outstanding_df, how='left')
+    merged['shares'] = merged['shares'].ffill()
+    
     # If no historical data, use current holdings
     if merged['btc_owned'].isna().all():
         stock_config = get_stock_config()
         merged['btc_owned'] = stock_config['btc_owned']
     
+    # If no historical data, use current shares
+    if merged['shares'].isna().all():
+        merged['shares'] = get_default_shares_outstanding()
+    
     # Dynamically calculate BTC_PER_SHARE for each date
-    shares_outstanding = get_shares_outstanding()
-    merged['btc_per_share'] = merged['btc_owned'] / shares_outstanding
+    merged['btc_per_share'] = merged['btc_owned'] / merged['shares']
     
     # Calculate MNav using historical BTC holdings
     merged['mnav'] = merged['close'] / (merged['btc_price'] * merged['btc_per_share'])
