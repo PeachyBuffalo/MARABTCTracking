@@ -33,6 +33,10 @@ pattern_prediction_*.json
 comprehensive_pattern_analysis_*.json
 robust_pattern_analysis_*.json
 
+# Auto-generated update files
+btc_update_*.py
+shares_update_*.py
+
 # OS files
 .DS_Store
 .DS_Store?

@@ -336,7 +336,7 @@ def main():
     # Default configurations - Updated with Bitcoin Treasuries data
     defaults = {
         'MSTR': {'btc': 607770, 'shares': 283544304},  # Bitcoin Treasuries
-        'MARA': {'btc': 50639, 'shares': 320000000},   # Bitcoin Treasuries (updated 2025-01-08)
+        'MARA': {'btc': 50639, 'shares': 320000000},   # Bitcoin Treasuries
         'RIOT': {'btc': 19225, 'shares': 220000000},   # Bitcoin Treasuries
         'CLSK': {'btc': 12608, 'shares': 70000000},    # Bitcoin Treasuries
         'TSLA': {'btc': 11509, 'shares': 3200000000},  # Bitcoin Treasuries

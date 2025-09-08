@@ -27,16 +27,34 @@ jobs:
     - name: Update shares outstanding
       run: |
         python update_shares_bitcointreasuries.py
+        if [ $? -ne 0 ]; then
+          echo "❌ Script failed to update shares outstanding"
+          exit 1
+        fi
+        echo "✅ Successfully updated shares outstanding"
+        
+    - name: Check for changes
+      id: check-changes
+      run: |
+        git add analyze_stock.py
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+          echo "has-changes=false" >> $GITHUB_OUTPUT
+        else
+          echo "Changes detected"
+          echo "has-changes=true" >> $GITHUB_OUTPUT
+        fi
         
     - name: Commit changes
+      if: steps.check-changes.outputs.has-changes == 'true'
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add analyze_stock.py
-        git diff --quiet && git diff --staged --quiet || git commit -m "Auto-update shares outstanding from Bitcoin Treasuries"
+        git commit -m "Auto-update shares outstanding from Bitcoin Treasuries"
         
     - name: Push changes
+      if: steps.check-changes.outputs.has-changes == 'true'
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ github.ref }}
+        branch: main
