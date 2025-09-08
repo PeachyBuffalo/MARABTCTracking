@@ -112,9 +112,9 @@ def create_manual_data():
     manual_data = {
         'MSTR': {
             'name': 'MicroStrategy',
-            'btc_holdings': 607770,
-            'market_cap': '~$8B',
-            'shares_estimate': 283544304,
+            'btc_holdings': 638460,
+            'market_cap': '~$100B',
+            'shares_estimate': 307000000,
             'source': 'Bitcoin Treasuries'
         },
         'MARA': {
@@ -185,7 +185,7 @@ def update_analyze_stock_with_bitcoin_treasuries():
     # Create new defaults section
     new_defaults = """    # Default configurations - Updated with Bitcoin Treasuries data
     defaults = {
-        'MSTR': {'btc': 607770, 'shares': 283544304},  # Bitcoin Treasuries
+        'MSTR': {'btc': 638460, 'shares': 307000000},  # Bitcoin Treasuries
         'MARA': {'btc': 50639, 'shares': 320000000},   # Bitcoin Treasuries
         'RIOT': {'btc': 19225, 'shares': 220000000},   # Bitcoin Treasuries
         'CLSK': {'btc': 12608, 'shares': 70000000},    # Bitcoin Treasuries
